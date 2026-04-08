@@ -1,0 +1,155 @@
+<UserControl x:Class="CoupleFinance.Desktop.Views.Pages.InvestmentsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <UserControl.Resources>
+        <DataTemplate x:Key="EnumComboTemplate">
+            <TextBlock Text="{Binding Converter={StaticResource EnumDisplayConverter}}" />
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <StackPanel>
+        <WrapPanel x:Name="SummaryCardsPanel" Margin="0,0,0,0">
+            <Border x:Name="TotalInvestedCard" Style="{StaticResource BalanceSummaryMetricCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Total investido" Style="{StaticResource EyebrowTextStyle}" />
+                    <TextBlock Text="{Binding CurrentSnapshot.Projection.TotalInvested, StringFormat={}{0:C2}}" Style="{StaticResource MetricValueStyle}" Margin="0,10,0,0" />
+                    <TextBlock Text="Capital já aportado em todos os ativos acompanhados." Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+            <Border x:Name="CurrentMarketValueCard" Style="{StaticResource IncomeSummaryMetricCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Valor de mercado atual" Style="{StaticResource EyebrowTextStyle}" />
+                    <TextBlock Text="{Binding CurrentSnapshot.Projection.TotalCurrentInvestments, StringFormat={}{0:C2}}" Style="{StaticResource MetricValueStyle}" Margin="0,10,0,0" />
+                    <TextBlock Text="Patrimônio consolidado dos investimentos manuais." Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+            <Border x:Name="InvestmentProfitCard" Style="{StaticResource ExpenseSummaryMetricCardStyle}" Margin="0,0,0,18">
+                <StackPanel>
+                    <TextBlock Text="Resultado acumulado" Style="{StaticResource EyebrowTextStyle}" />
+                    <TextBlock Text="{Binding TotalInvestmentProfit, StringFormat={}{0:C2}}" Style="{StaticResource MetricValueStyle}" Foreground="{Binding TotalInvestmentProfit, Converter={StaticResource CurrencyColorConverter}}" Margin="0,10,0,0" />
+                    <TextBlock Text="{Binding InvestmentReturnPercentage, StringFormat=Rentabilidade aproximada: {0:N2}%}" Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+        </WrapPanel>
+
+        <WrapPanel x:Name="MainSectionsPanel">
+            <Border x:Name="NewInvestmentCard" Style="{StaticResource ResponsiveSideGlassCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Novo ativo" Style="{StaticResource CardTitleStyle}" />
+                    <TextBlock Text="Mantenha a carteira simples e consistente, separando o que é individual do que é conjunto." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+
+                    <StackPanel Margin="0,20,0,0">
+                        <TextBlock Text="Nome do ativo" Style="{StaticResource FormLabelStyle}" />
+                        <TextBox Text="{Binding InvestmentForm.Name, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Ex.: Tesouro Selic, PETR4, reserva CDI" />
+
+                        <TextBlock Text="Ticker" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                        <TextBox Text="{Binding InvestmentForm.Ticker, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Opcional para identificar o ativo" />
+
+                        <TextBlock Text="Corretora ou banco" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                        <TextBox Text="{Binding InvestmentForm.Broker, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Ex.: NuInvest, XP, banco principal" />
+
+                        <TextBlock Text="Classe do ativo" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                        <ComboBox ItemsSource="{Binding AssetTypes}" ItemTemplate="{StaticResource EnumComboTemplate}" SelectedItem="{Binding InvestmentForm.AssetType}" />
+
+                        <TextBlock Text="Valor investido" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                        <TextBox Text="{Binding InvestmentForm.InvestedAmount, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Total de aportes acumulados" />
+
+                        <TextBlock Text="Valor atual" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                        <TextBox Text="{Binding InvestmentForm.CurrentValue, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Valor de mercado mais recente" />
+
+                        <TextBlock Text="Quantidade" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                        <TextBox Text="{Binding InvestmentForm.Quantity, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Quantidade, cotas ou 1 para posição consolidada" />
+
+                        <TextBlock Text="Escopo" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                        <ComboBox ItemsSource="{Binding EntryScopes}" ItemTemplate="{StaticResource EnumComboTemplate}" SelectedItem="{Binding InvestmentForm.Scope}" />
+
+                        <TextBlock Text="Data de atualização" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                        <DatePicker SelectedDate="{Binding InvestmentForm.UpdatedOn}" />
+                    </StackPanel>
+
+                    <Button Content="Salvar ativo" Command="{Binding SaveInvestmentCommand}" Style="{StaticResource AccentContainedButtonStyle}" HorizontalAlignment="Left" Margin="0,18,0,0" />
+                </StackPanel>
+            </Border>
+
+            <StackPanel x:Name="InvestmentsMainColumn" Style="{StaticResource ResponsiveMainColumnStyle}">
+                <Border Style="{StaticResource GlassCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Alocação atual" Style="{StaticResource CardTitleStyle}" />
+                        <TextBlock Text="Veja como o patrimônio está distribuído entre classes de investimento." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+
+                        <ItemsControl ItemsSource="{Binding InvestmentAllocationItems}" Margin="0,20,0,0" Visibility="{Binding InvestmentAllocationItems.Count, Converter={StaticResource CountToVisibilityConverter}}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource InnerCardStyle}" Margin="0,0,0,12">
+                                        <StackPanel>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                                                <TextBlock Grid.Column="1" Text="{Binding CurrentValue, StringFormat={}{0:C2}}" Foreground="{Binding AccentBrush}" FontWeight="SemiBold" />
+                                            </Grid>
+                                            <ProgressBar Value="{Binding RatioPercent}" Maximum="100" Foreground="{Binding AccentBrush}" />
+                                            <TextBlock Text="{Binding RatioPercent, StringFormat={}{0:N1}% da carteira atual}" Style="{StaticResource MetricCaptionStyle}" Margin="0,6,0,0" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Border Style="{StaticResource EmptyStateCardStyle}" Margin="0,20,0,0" Visibility="{Binding InvestmentAllocationItems.Count, Converter={StaticResource CountToVisibilityConverter}, ConverterParameter=Invert}">
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <materialDesign:PackIcon Kind="ChartPie" Width="34" Height="34" />
+                                <TextBlock Text="Sem ativos para consolidar ainda" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,14,0,0" />
+                                <TextBlock Text="Cadastre o primeiro ativo para visualizar rentabilidade e distribuição por classe." Style="{StaticResource CardSubtitleStyle}" TextAlignment="Center" Margin="0,8,0,0" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource GlassCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Carteira consolidada" Style="{StaticResource CardTitleStyle}" />
+                        <TextBlock Text="Ativos ordenados por tamanho, com resultado e visibilidade individual ou conjunta." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+
+                        <ItemsControl ItemsSource="{Binding InvestmentOverviewItems}" Margin="0,20,0,0" Visibility="{Binding InvestmentOverviewItems.Count, Converter={StaticResource CountToVisibilityConverter}}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource InnerCardStyle}" Margin="0,0,0,12">
+                                        <StackPanel>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <WrapPanel>
+                                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Margin="0,0,10,0" />
+                                                        <Border Background="{Binding AccentBrush}" CornerRadius="10" Padding="8,3" Opacity="0.18">
+                                                            <TextBlock Text="{Binding ScopeLabel}" Foreground="{Binding AccentBrush}" FontSize="11" FontWeight="SemiBold" />
+                                                        </Border>
+                                                    </WrapPanel>
+                                                    <TextBlock Text="{Binding Ticker}" Style="{StaticResource CardSubtitleStyle}" Margin="0,4,0,0" />
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="1" Text="{Binding CurrentValue, StringFormat={}{0:C2}}" FontSize="20" FontWeight="Bold" HorizontalAlignment="Right" />
+                                            </Grid>
+
+                                            <WrapPanel Margin="0,10,0,0">
+                                                <TextBlock Text="{Binding OwnerLabel, StringFormat=Responsável: {0}}" Style="{StaticResource MetricCaptionStyle}" Margin="0,0,16,0" />
+                                                <TextBlock Text="{Binding InvestedAmount, StringFormat=Investido {0:C2}}" Style="{StaticResource MetricCaptionStyle}" Margin="0,0,16,0" />
+                                                <TextBlock Text="{Binding ProfitPercentage, StringFormat=Retorno {0:N2}%}" Style="{StaticResource MetricCaptionStyle}" />
+                                            </WrapPanel>
+                                            <TextBlock Text="{Binding Profit, StringFormat=Resultado acumulado {0:C2}}" Foreground="{Binding Profit, Converter={StaticResource CurrencyColorConverter}}" Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </WrapPanel>
+    </StackPanel>
+</UserControl>

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Platforms>x64</Platforms>
+    <ApplicationIcon>..\CoupleFinance.Desktop\Assets\AppIcon.ico</ApplicationIcon>
+    <Version>1.1.19</Version>
+    <AssemblyVersion>1.1.19.0</AssemblyVersion>
+    <FileVersion>1.1.19.0</FileVersion>
+    <PayloadZipPath Condition="'$(PayloadZipPath)' == ''">$(MSBuildProjectDirectory)\payload\CoupleFinance-portable.zip</PayloadZipPath>
+  </PropertyGroup>
+
+  <ItemGroup Condition="Exists('$(PayloadZipPath)')">
+    <EmbeddedResource Include="$(PayloadZipPath)" LogicalName="CoupleFinance.Payload.zip" />
+  </ItemGroup>
+
+</Project>

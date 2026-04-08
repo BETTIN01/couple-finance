@@ -1,0 +1,19 @@
+# Build outputs
+artifacts/
+**/bin/
+**/obj/
+
+# IDE files
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Test outputs
+TestResults/
+*.trx
+
+# OS files
+Thumbs.db
+Desktop.ini

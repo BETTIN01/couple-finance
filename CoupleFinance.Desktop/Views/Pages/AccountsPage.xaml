@@ -1,0 +1,153 @@
+<UserControl x:Class="CoupleFinance.Desktop.Views.Pages.AccountsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <UserControl.Resources>
+        <DataTemplate x:Key="EnumComboTemplate">
+            <TextBlock Text="{Binding Converter={StaticResource EnumDisplayConverter}}" />
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <StackPanel>
+        <WrapPanel x:Name="SummaryCardsPanel" Margin="0,0,0,0">
+            <Border x:Name="AccountBalanceCard" Style="{StaticResource BalanceSummaryMetricCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Saldo total em contas" Style="{StaticResource EyebrowTextStyle}" />
+                    <TextBlock Text="{Binding TotalAccountBalance, StringFormat={}{0:C2}}" Style="{StaticResource MetricValueStyle}" Margin="0,10,0,0" />
+                    <TextBlock Text="Tudo o que está efetivamente distribuído nas contas cadastradas." Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+            <Border x:Name="ActiveAccountsCard" Style="{StaticResource IncomeSummaryMetricCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Contas ativas" Style="{StaticResource EyebrowTextStyle}" />
+                    <TextBlock Text="{Binding CurrentSnapshot.Accounts.Count}" Style="{StaticResource MetricValueStyle}" Margin="0,10,0,0" />
+                    <TextBlock Text="Separar bem conta, carteira e reserva melhora a leitura do fluxo." Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+            <Border x:Name="CategoriesCountCard" Style="{StaticResource InvoiceSummaryMetricCardStyle}" Margin="0,0,0,18">
+                <StackPanel>
+                    <TextBlock Text="Categorias disponíveis" Style="{StaticResource EyebrowTextStyle}" />
+                    <TextBlock Text="{Binding CurrentSnapshot.Categories.Count}" Style="{StaticResource MetricValueStyle}" Margin="0,10,0,0" />
+                    <TextBlock Text="Mais clareza nas categorias gera melhores gráficos e insights." Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+        </WrapPanel>
+
+        <WrapPanel x:Name="MainSectionsPanel">
+            <Border x:Name="AccountsOverviewCard" Style="{StaticResource ResponsiveMainGlassCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Contas com visão gerencial" Style="{StaticResource CardTitleStyle}" />
+                    <TextBlock Text="Cada conta mostra saldo, tipo e o quanto recebeu ou pagou no período selecionado." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+
+                    <ItemsControl ItemsSource="{Binding AccountOverviewItems}" Margin="0,20,0,0" Visibility="{Binding AccountOverviewItems.Count, Converter={StaticResource CountToVisibilityConverter}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource InnerCardStyle}" Margin="0,0,0,12">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Margin="0,0,18,0">
+                                            <WrapPanel>
+                                                <TextBlock Text="{Binding Name}" FontSize="18" FontWeight="SemiBold" Margin="0,0,10,0" />
+                                                <Border Background="{Binding AccentBrush}" CornerRadius="10" Padding="8,3" Opacity="0.18">
+                                                    <TextBlock Text="{Binding TypeLabel}" Foreground="{Binding AccentBrush}" FontSize="11" FontWeight="SemiBold" />
+                                                </Border>
+                                            </WrapPanel>
+                                            <TextBlock Text="{Binding Institution}" Style="{StaticResource CardSubtitleStyle}" Margin="0,6,0,0" />
+                                            <WrapPanel Margin="0,10,0,0">
+                                                <TextBlock Text="{Binding Inflows, StringFormat=Entradas {0:C2}}" Style="{StaticResource MetricCaptionStyle}" Margin="0,0,16,0" />
+                                                <TextBlock Text="{Binding Outflows, StringFormat=Saídas {0:C2}}" Style="{StaticResource MetricCaptionStyle}" Margin="0,0,16,0" />
+                                                <TextBlock Text="{Binding MovementCount, StringFormat={}{0} movimentações}" Style="{StaticResource MetricCaptionStyle}" />
+                                            </WrapPanel>
+                                        </StackPanel>
+
+                                        <TextBlock Grid.Column="1" Text="{Binding Balance, StringFormat={}{0:C2}}" Foreground="{Binding AccentBrush}" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Border Style="{StaticResource EmptyStateCardStyle}" Margin="0,20,0,0" Visibility="{Binding AccountOverviewItems.Count, Converter={StaticResource CountToVisibilityConverter}, ConverterParameter=Invert}">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <materialDesign:PackIcon Kind="BankPlus" Width="34" Height="34" />
+                            <TextBlock Text="Nenhuma conta cadastrada ainda" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,14,0,0" />
+                            <TextBlock Text="Cadastre pelo menos uma conta para acompanhar saldo, transferências e pagamentos de fatura." Style="{StaticResource CardSubtitleStyle}" TextAlignment="Center" Margin="0,8,0,0" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <StackPanel x:Name="AccountsSideColumn" Style="{StaticResource ResponsiveSideColumnStyle}">
+                <Border Style="{StaticResource GlassCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Nova conta" Style="{StaticResource CardTitleStyle}" />
+                        <TextBlock Text="Crie contas separadas para corrente, poupança, carteira ou reserva e melhore a leitura do caixa." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+
+                        <StackPanel Margin="0,20,0,0">
+                            <TextBlock Text="Nome da conta" Style="{StaticResource FormLabelStyle}" />
+                            <TextBox Text="{Binding BankAccountForm.Name, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Ex.: Nubank pessoal, reserva conjunta" />
+
+                            <TextBlock Text="Instituição" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <TextBox Text="{Binding BankAccountForm.Institution, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Ex.: Itaú, XP, Caixa física" />
+
+                            <TextBlock Text="Tipo" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <ComboBox ItemsSource="{Binding AccountTypes}" ItemTemplate="{StaticResource EnumComboTemplate}" SelectedItem="{Binding BankAccountForm.Type}" />
+
+                            <TextBlock Text="Saldo inicial" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <TextBox Text="{Binding BankAccountForm.CurrentBalance, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Saldo atual da conta" />
+
+                            <TextBlock Text="Cor de destaque" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <TextBox Text="{Binding BankAccountForm.ColorHex, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Ex.: #FF3561F2" />
+                        </StackPanel>
+
+                        <Button Content="Salvar conta" Command="{Binding SaveBankAccountCommand}" Style="{StaticResource AccentContainedButtonStyle}" HorizontalAlignment="Left" Margin="0,18,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource GlassCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Categorias" Style="{StaticResource CardTitleStyle}" />
+                        <TextBlock Text="Padronize seus lançamentos para dar contexto melhor aos gráficos e insights." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+
+                        <StackPanel Margin="0,20,0,0">
+                            <TextBlock Text="Nome da categoria" Style="{StaticResource FormLabelStyle}" />
+                            <TextBox Text="{Binding CategoryForm.Name, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Ex.: escola, streaming, supermercado" />
+
+                            <TextBlock Text="Tipo" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <ComboBox ItemsSource="{Binding CategoryTypes}" ItemTemplate="{StaticResource EnumComboTemplate}" SelectedItem="{Binding CategoryForm.Type}" />
+
+                            <TextBlock Text="Ícone" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <TextBox Text="{Binding CategoryForm.IconKey, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Ex.: Tag, Home, Food" />
+
+                            <TextBlock Text="Cor" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <TextBox Text="{Binding CategoryForm.ColorHex, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Ex.: #FF7C5DFA" />
+                        </StackPanel>
+
+                        <Button Content="Salvar categoria" Command="{Binding SaveCategoryCommand}" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Left" Margin="0,18,0,0" />
+
+                        <ItemsControl ItemsSource="{Binding CurrentSnapshot.Categories}" Margin="0,18,0,0" Visibility="{Binding CurrentSnapshot.Categories.Count, Converter={StaticResource CountToVisibilityConverter}}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource SubtlePanelStyle}" Margin="0,0,0,10">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                                            <TextBlock Grid.Column="1" Text="{Binding Type, Converter={StaticResource EnumDisplayConverter}}" Style="{StaticResource MetricCaptionStyle}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </WrapPanel>
+    </StackPanel>
+</UserControl>

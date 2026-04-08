@@ -1,0 +1,205 @@
+<UserControl x:Class="CoupleFinance.Desktop.Views.Pages.CardsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <UserControl.Resources>
+        <DataTemplate x:Key="EnumComboTemplate">
+            <TextBlock Text="{Binding Converter={StaticResource EnumDisplayConverter}}" />
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <StackPanel>
+        <WrapPanel x:Name="SummaryCardsPanel" Margin="0,0,0,0">
+            <Border x:Name="CardLimitSummaryCard" Style="{StaticResource BalanceSummaryMetricCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Limite total cadastrado" Style="{StaticResource EyebrowTextStyle}" />
+                    <TextBlock Text="{Binding TotalCardLimit, StringFormat={}{0:C2}}" Style="{StaticResource MetricValueStyle}" Margin="0,10,0,0" />
+                    <TextBlock Text="Quanto vocês têm disponível somando todos os cartões." Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+            <Border x:Name="OpenInvoiceSummaryCard" Style="{StaticResource ExpenseSummaryMetricCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Faturas em aberto" Style="{StaticResource EyebrowTextStyle}" />
+                    <TextBlock Text="{Binding TotalOpenInvoices, StringFormat={}{0:C2}}" Style="{StaticResource MetricValueStyle}" Margin="0,10,0,0" />
+                    <TextBlock Text="{Binding CardUsagePercent, StringFormat=Uso consolidado do limite: {0:N1}%}" Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+            <Border x:Name="RecentPurchasesSummaryCard" Style="{StaticResource InvoiceSummaryMetricCardStyle}" Margin="0,0,0,18">
+                <StackPanel>
+                    <TextBlock Text="Compras recentes" Style="{StaticResource EyebrowTextStyle}" />
+                    <TextBlock Text="{Binding CurrentSnapshot.Purchases.Count}" Style="{StaticResource MetricValueStyle}" Margin="0,10,0,0" />
+                    <TextBlock Text="Parcelamentos e compras à vista impactando as próximas faturas." Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+        </WrapPanel>
+
+        <WrapPanel x:Name="TopSectionsPanel">
+            <Border x:Name="CardsOverviewCard" Style="{StaticResource ResponsiveMainGlassCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Cartões com visão gerencial" Style="{StaticResource CardTitleStyle}" />
+                    <TextBlock Text="Limite, valor já comprometido, espaço livre e próximo vencimento em uma leitura só." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+
+                    <ItemsControl ItemsSource="{Binding CardOverviewItems}" Margin="0,20,0,0" Visibility="{Binding CardOverviewItems.Count, Converter={StaticResource CountToVisibilityConverter}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource InnerCardStyle}" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Name}" FontSize="18" FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding Brand}" Style="{StaticResource CardSubtitleStyle}" Margin="0,6,0,0" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" Text="{Binding OpenAmount, StringFormat={}{0:C2}}" Foreground="{Binding AccentBrush}" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" />
+                                        </Grid>
+                                        <ProgressBar Value="{Binding UsagePercent}" Maximum="100" Foreground="{Binding AccentBrush}" />
+                                        <WrapPanel Margin="0,10,0,0">
+                                            <TextBlock Text="{Binding LimitAmount, StringFormat=Limite {0:C2}}" Style="{StaticResource MetricCaptionStyle}" Margin="0,0,16,0" />
+                                            <TextBlock Text="{Binding AvailableAmount, StringFormat=Disponível {0:C2}}" Style="{StaticResource MetricCaptionStyle}" Margin="0,0,16,0" />
+                                            <TextBlock Text="{Binding PurchaseCount, StringFormat={}{0} compras no período}" Style="{StaticResource MetricCaptionStyle}" />
+                                        </WrapPanel>
+                                        <TextBlock Text="{Binding DueText}" Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Border Style="{StaticResource EmptyStateCardStyle}" Margin="0,20,0,0" Visibility="{Binding CardOverviewItems.Count, Converter={StaticResource CountToVisibilityConverter}, ConverterParameter=Invert}">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <materialDesign:PackIcon Kind="CreditCardPlusOutline" Width="34" Height="34" />
+                            <TextBlock Text="Nenhum cartão cadastrado ainda" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,14,0,0" />
+                            <TextBlock Text="Cadastre o primeiro cartão para acompanhar limite, compras parceladas e faturas." Style="{StaticResource CardSubtitleStyle}" TextAlignment="Center" Margin="0,8,0,0" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <StackPanel x:Name="CardsSideColumn" Style="{StaticResource ResponsiveSideColumnStyle}">
+                <Border Style="{StaticResource GlassCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Novo cartão" Style="{StaticResource CardTitleStyle}" />
+                        <TextBlock Text="Inclua limite, fechamento e vencimento para o app calcular impacto corretamente." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+
+                        <StackPanel Margin="0,20,0,0">
+                            <TextBlock Text="Nome do cartão" Style="{StaticResource FormLabelStyle}" />
+                            <TextBox Text="{Binding CreditCardForm.Name, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Ex.: Visa conjunto, Nubank da Ana" />
+
+                            <TextBlock Text="Bandeira" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <TextBox Text="{Binding CreditCardForm.Brand, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Ex.: Visa, Mastercard" />
+
+                            <TextBlock Text="Limite" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <TextBox Text="{Binding CreditCardForm.LimitAmount, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Limite total do cartão" />
+
+                            <TextBlock Text="Dia de fechamento" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <TextBox Text="{Binding CreditCardForm.ClosingDay, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Ex.: 25" />
+
+                            <TextBlock Text="Dia de vencimento" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <TextBox Text="{Binding CreditCardForm.DueDay, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Ex.: 5" />
+
+                            <TextBlock Text="Cor de destaque" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <TextBox Text="{Binding CreditCardForm.ColorHex, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Ex.: #FFF5A623" />
+                        </StackPanel>
+
+                        <Button Content="Salvar cartão" Command="{Binding SaveCreditCardCommand}" Style="{StaticResource AccentContainedButtonStyle}" HorizontalAlignment="Left" Margin="0,18,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource GlassCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Nova compra no cartão" Style="{StaticResource CardTitleStyle}" />
+                        <TextBlock Text="Compras parceladas alimentam faturas futuras automaticamente." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+
+                        <StackPanel Margin="0,20,0,0">
+                            <TextBlock Text="Cartão" Style="{StaticResource FormLabelStyle}" />
+                            <ComboBox ItemsSource="{Binding CurrentSnapshot.CreditCards}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding CardPurchaseForm.CreditCardId}" />
+
+                            <TextBlock Text="Descrição" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <TextBox Text="{Binding CardPurchaseForm.Description, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Ex.: Mercado mensal, passagem, assinatura" />
+
+                            <TextBlock Text="Valor" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <TextBox Text="{Binding CardPurchaseForm.Amount, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Valor total da compra" />
+
+                            <TextBlock Text="Parcelas" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <TextBox Text="{Binding CardPurchaseForm.InstallmentCount, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="1 para compra à vista" />
+
+                            <TextBlock Text="Categoria" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <ComboBox ItemsSource="{Binding CurrentSnapshot.Categories}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding CardPurchaseForm.CategoryId}" />
+
+                            <TextBlock Text="Escopo" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <ComboBox ItemsSource="{Binding EntryScopes}" ItemTemplate="{StaticResource EnumComboTemplate}" SelectedItem="{Binding CardPurchaseForm.Scope}" />
+
+                            <TextBlock Text="Data da compra" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <DatePicker SelectedDate="{Binding CardPurchaseForm.PurchaseDate}" />
+                        </StackPanel>
+
+                        <Button Content="Adicionar compra" Command="{Binding SaveCardPurchaseCommand}" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Left" Margin="0,18,0,0" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </WrapPanel>
+
+        <WrapPanel x:Name="BottomSectionsPanel">
+            <Border x:Name="InvoicesCard" Style="{StaticResource ResponsiveMainGlassCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Faturas" Style="{StaticResource CardTitleStyle}" />
+                    <TextBlock Text="Pendências, total em aberto e vencimento organizado por cartão." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+
+                    <DataGrid ItemsSource="{Binding InvoiceOverviewItems}" Height="340" Margin="0,20,0,0" Visibility="{Binding InvoiceOverviewItems.Count, Converter={StaticResource CountToVisibilityConverter}}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Cartão" Binding="{Binding CardName}" Width="*" />
+                            <DataGridTextColumn Header="Referência" Binding="{Binding Reference}" Width="110" />
+                            <DataGridTextColumn Header="Status" Binding="{Binding StatusLabel}" Width="120" />
+                            <DataGridTextColumn Header="Em aberto" Binding="{Binding RemainingAmount, StringFormat={}{0:C2}}" Width="140" />
+                            <DataGridTextColumn Header="Vencimento" Binding="{Binding DueDate, StringFormat={}{0:dd/MM/yyyy}}" Width="130" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Border Style="{StaticResource EmptyStateCardStyle}" Margin="0,20,0,0" Visibility="{Binding InvoiceOverviewItems.Count, Converter={StaticResource CountToVisibilityConverter}, ConverterParameter=Invert}">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <materialDesign:PackIcon Kind="FileDocumentOutline" Width="34" Height="34" />
+                            <TextBlock Text="Nenhuma fatura gerada ainda" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,14,0,0" />
+                            <TextBlock Text="As faturas surgem automaticamente conforme compras são registradas." Style="{StaticResource CardSubtitleStyle}" TextAlignment="Center" Margin="0,8,0,0" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <Border x:Name="InvoicePaymentCard" Style="{StaticResource ResponsiveSideGlassCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Pagamento de fatura" Style="{StaticResource CardTitleStyle}" />
+                    <TextBlock Text="Registre o pagamento para abater saldo da conta e manter o histórico correto." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+
+                    <StackPanel Margin="0,20,0,0">
+                        <TextBlock Text="Fatura" Style="{StaticResource FormLabelStyle}" />
+                        <ComboBox ItemsSource="{Binding CurrentSnapshot.Invoices}" DisplayMemberPath="ReferenceLabel" SelectedValuePath="Id" SelectedValue="{Binding InvoicePaymentForm.InvoiceId}" />
+
+                        <TextBlock Text="Conta de pagamento" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                        <ComboBox ItemsSource="{Binding CurrentSnapshot.Accounts}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding InvoicePaymentForm.BankAccountId}" />
+
+                        <TextBlock Text="Valor" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                        <TextBox Text="{Binding InvoicePaymentForm.Amount, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Use 0 para quitar o total automaticamente" />
+
+                        <TextBlock Text="Data do pagamento" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                        <DatePicker SelectedDate="{Binding InvoicePaymentForm.PaidOn}" />
+                    </StackPanel>
+
+                    <Button Content="Registrar pagamento" Command="{Binding PayInvoiceCommand}" Style="{StaticResource AccentContainedButtonStyle}" HorizontalAlignment="Left" Margin="0,18,0,0" />
+
+                    <TextBlock Text="Compras recentes no cartão" Style="{StaticResource CardTitleStyle}" Margin="0,28,0,0" />
+                    <DataGrid ItemsSource="{Binding CurrentSnapshot.Purchases}" Height="180" Margin="0,16,0,0" Visibility="{Binding CurrentSnapshot.Purchases.Count, Converter={StaticResource CountToVisibilityConverter}}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Data" Binding="{Binding PurchaseDate, StringFormat={}{0:dd/MM/yyyy}}" Width="120" />
+                            <DataGridTextColumn Header="Descrição" Binding="{Binding Description}" Width="*" />
+                            <DataGridTextColumn Header="Parcelas" Binding="{Binding InstallmentCount}" Width="80" />
+                            <DataGridTextColumn Header="Valor" Binding="{Binding Amount, StringFormat={}{0:C2}}" Width="120" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </Border>
+        </WrapPanel>
+    </StackPanel>
+</UserControl>

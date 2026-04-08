@@ -1,0 +1,137 @@
+<UserControl x:Class="CoupleFinance.Desktop.Views.Pages.PlanningPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <UserControl.Resources>
+        <DataTemplate x:Key="EnumComboTemplate">
+            <TextBlock Text="{Binding Converter={StaticResource EnumDisplayConverter}}" />
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <StackPanel>
+        <WrapPanel x:Name="SummaryCardsPanel" Margin="0,0,0,0">
+            <Border x:Name="AvailableToSaveCard" Style="{StaticResource BalanceSummaryMetricCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Disponível para poupar" Style="{StaticResource EyebrowTextStyle}" />
+                    <TextBlock Text="{Binding CurrentSnapshot.Projection.AvailableToSave, StringFormat={}{0:C2}}" Style="{StaticResource MetricValueStyle}" Margin="0,10,0,0" />
+                    <TextBlock Text="Valor estimado após receitas e despesas do período." Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+            <Border x:Name="SavingsRateCard" Style="{StaticResource IncomeSummaryMetricCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Taxa de poupança" Style="{StaticResource EyebrowTextStyle}" />
+                    <TextBlock Text="{Binding CurrentSnapshot.Projection.SavingsRate, StringFormat={}{0:N2}%}" Style="{StaticResource MetricValueStyle}" Margin="0,10,0,0" />
+                    <TextBlock Text="Mostra o quanto do fluxo mensal sobra para patrimônio e metas." Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+            <Border x:Name="GoalsCountCard" Style="{StaticResource InvoiceSummaryMetricCardStyle}" Margin="0,0,0,18">
+                <StackPanel>
+                    <TextBlock Text="Metas ativas" Style="{StaticResource EyebrowTextStyle}" />
+                    <TextBlock Text="{Binding GoalOverviewItems.Count}" Style="{StaticResource MetricValueStyle}" Margin="0,10,0,0" />
+                    <TextBlock Text="Objetivos com projeção real de prazo e aporte mensal." Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+        </WrapPanel>
+
+        <WrapPanel x:Name="MainSectionsPanel">
+            <StackPanel x:Name="PlanningSideColumn" Style="{StaticResource ResponsiveSideColumnStyle}">
+                <Border Style="{StaticResource GlassCardStyle}" Margin="0,0,18,18">
+                    <StackPanel>
+                        <TextBlock Text="Nova meta" Style="{StaticResource CardTitleStyle}" />
+                        <TextBlock Text="Defina objetivo, valor alvo e quanto querem colocar por mês para acelerar a conclusão." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+
+                        <StackPanel Margin="0,20,0,0">
+                            <TextBlock Text="Nome da meta" Style="{StaticResource FormLabelStyle}" />
+                            <TextBox Text="{Binding GoalForm.Name, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Ex.: viagem, reserva, entrada do carro" />
+
+                            <TextBlock Text="Tipo" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <ComboBox ItemsSource="{Binding GoalTypes}" ItemTemplate="{StaticResource EnumComboTemplate}" SelectedItem="{Binding GoalForm.GoalType}" />
+
+                            <TextBlock Text="Objetivo total" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <TextBox Text="{Binding GoalForm.TargetAmount, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Quanto vocês querem acumular" />
+
+                            <TextBlock Text="Valor já guardado" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <TextBox Text="{Binding GoalForm.CurrentAmount, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Quanto já foi reservado" />
+
+                            <TextBlock Text="Aporte mensal desejado" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <TextBox Text="{Binding GoalForm.MonthlyContributionTarget, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Quanto pretendem separar por mês" />
+
+                            <TextBlock Text="Data alvo" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <DatePicker SelectedDate="{Binding GoalForm.TargetDate}" />
+
+                            <TextBlock Text="Observações" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                            <TextBox Text="{Binding GoalForm.Notes, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Contexto extra, prioridade ou motivo do objetivo" />
+                        </StackPanel>
+
+                        <Button Content="Salvar meta" Command="{Binding SaveGoalCommand}" Style="{StaticResource AccentContainedButtonStyle}" HorizontalAlignment="Left" Margin="0,18,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource GlassCardStyle}" Margin="0,0,18,0">
+                    <StackPanel>
+                        <TextBlock Text="Panorama do período" Style="{StaticResource CardTitleStyle}" />
+                        <TextBlock Text="{Binding CurrentSnapshot.Projection.Recommendation}" Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+
+                        <Border Style="{StaticResource SubtlePanelStyle}" Margin="0,18,0,0">
+                            <StackPanel>
+                                <TextBlock Text="{Binding CurrentSnapshot.Projection.MonthlyIncome, StringFormat=Receitas consideradas: {0:C2}}" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding CurrentSnapshot.Projection.MonthlyExpenses, StringFormat=Despesas consideradas: {0:C2}}" Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                                <TextBlock Text="{Binding CurrentSnapshot.Projection.AvailableToSave, StringFormat=Sobra estimada: {0:C2}}" Style="{StaticResource MetricCaptionStyle}" Margin="0,6,0,0" />
+                                <TextBlock Text="{Binding CurrentSnapshot.Projection.SavingsRate, StringFormat=Taxa de poupança: {0:N2}%}" Style="{StaticResource MetricCaptionStyle}" Margin="0,6,0,0" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <Border x:Name="GoalsProjectionCard" Style="{StaticResource ResponsiveMainGlassCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Metas e projeções" Style="{StaticResource CardTitleStyle}" />
+                    <TextBlock Text="Cada meta mostra progresso real, valor restante, recomendação mensal e previsão de conclusão." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+
+                    <ItemsControl ItemsSource="{Binding GoalOverviewItems}" Margin="0,20,0,0" Visibility="{Binding GoalOverviewItems.Count, Converter={StaticResource CountToVisibilityConverter}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource InnerCardStyle}" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding TypeLabel}" Style="{StaticResource CardSubtitleStyle}" Margin="0,4,0,0" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" Text="{Binding ProgressPercent, StringFormat={}{0:N0}%}" Foreground="{Binding AccentBrush}" FontWeight="Bold" VerticalAlignment="Center" />
+                                        </Grid>
+
+                                        <ProgressBar Value="{Binding ProgressPercent}" Maximum="100" Foreground="{Binding AccentBrush}" />
+
+                                        <WrapPanel Margin="0,10,0,0">
+                                            <TextBlock Text="{Binding CurrentAmount, StringFormat=Acumulado {0:C2}}" Style="{StaticResource MetricCaptionStyle}" Margin="0,0,16,0" />
+                                            <TextBlock Text="{Binding RemainingAmount, StringFormat=Restante {0:C2}}" Style="{StaticResource MetricCaptionStyle}" Margin="0,0,16,0" />
+                                            <TextBlock Text="{Binding SuggestedMonthlyContribution, StringFormat=Sugerido por mês {0:C2}}" Style="{StaticResource MetricCaptionStyle}" />
+                                        </WrapPanel>
+
+                                        <TextBlock Text="{Binding MonthsToTarget, StringFormat=Prazo estimado: {0} mês(es)}" Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                                        <TextBlock Text="{Binding ProjectedCompletionDate, StringFormat=Conclusão projetada: {0:dd/MM/yyyy}}" Style="{StaticResource MetricCaptionStyle}" Margin="0,4,0,0" />
+                                        <TextBlock Text="{Binding Recommendation}" Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Border Style="{StaticResource EmptyStateCardStyle}" Margin="0,20,0,0" Visibility="{Binding GoalOverviewItems.Count, Converter={StaticResource CountToVisibilityConverter}, ConverterParameter=Invert}">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <materialDesign:PackIcon Kind="BullseyeArrow" Width="36" Height="36" />
+                            <TextBlock Text="Nenhuma meta configurada ainda" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,14,0,0" />
+                            <TextBlock Text="Crie um objetivo para o app estimar ritmo, valor restante e data provável de conclusão." Style="{StaticResource CardSubtitleStyle}" TextAlignment="Center" Margin="0,8,0,0" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </WrapPanel>
+    </StackPanel>
+</UserControl>

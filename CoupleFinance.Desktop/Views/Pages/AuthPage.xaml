@@ -1,0 +1,104 @@
+<UserControl x:Class="CoupleFinance.Desktop.Views.Pages.AuthPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <Grid Margin="36">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.15*" />
+            <ColumnDefinition Width="0.95*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid>
+            <Ellipse Width="340" Height="340" Fill="#22F6AE2D" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-70,-70,0,0" />
+            <Ellipse Width="260" Height="260" Fill="#1C74B6FF" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-40,-40" />
+
+            <StackPanel VerticalAlignment="Center" Margin="28,0,72,0">
+                <TextBlock Text="Couple Finance" Foreground="{StaticResource AccentBrush}" FontSize="18" FontWeight="SemiBold" />
+                <TextBlock Text="O controle financeiro do casal com aparência de produto, clareza de uso e visão compartilhada."
+                           FontSize="42"
+                           FontWeight="Bold"
+                           TextWrapping="Wrap"
+                           Margin="0,18,0,18" />
+                <TextBlock Text="Contas, cartões, metas, investimentos e sincronização em um painel pensado para decisões reais do dia a dia."
+                           FontSize="18"
+                           Foreground="{StaticResource TextTertiaryBrush}"
+                           TextWrapping="Wrap"
+                           Margin="0,0,0,26" />
+
+                <WrapPanel>
+                    <Border Style="{StaticResource SubtlePanelStyle}" Width="180" Margin="0,0,14,14">
+                        <StackPanel>
+                            <TextBlock Text="Visão do casal" Style="{StaticResource EyebrowTextStyle}" />
+                            <TextBlock Text="Individual + conjunto" FontSize="20" FontWeight="Bold" Margin="0,8,0,0" />
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource SubtlePanelStyle}" Width="180" Margin="0,0,14,14">
+                        <StackPanel>
+                            <TextBlock Text="Cartões" Style="{StaticResource EyebrowTextStyle}" />
+                            <TextBlock Text="Faturas e parcelas" FontSize="20" FontWeight="Bold" Margin="0,8,0,0" />
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource SubtlePanelStyle}" Width="180" Margin="0,0,0,14">
+                        <StackPanel>
+                            <TextBlock Text="Insights" Style="{StaticResource EyebrowTextStyle}" />
+                            <TextBlock Text="Diagnósticos automáticos" FontSize="20" FontWeight="Bold" Margin="0,8,0,0" />
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Column="1" Style="{StaticResource HeroCardStyle}" Padding="32" VerticalAlignment="Center" Margin="28,0,0,0">
+            <StackPanel>
+                <TextBlock Text="Bem-vindo" FontSize="32" FontWeight="Bold" />
+                <TextBlock Text="Crie ou acesse o lar financeiro compartilhado." Style="{StaticResource CardSubtitleStyle}" Margin="0,10,0,24" />
+
+                <StackPanel Visibility="{Binding IsRegisterMode, Converter={StaticResource BooleanMatchToVisibilityConverter}, ConverterParameter=True}">
+                    <TextBlock Text="Seu nome" Style="{StaticResource FormLabelStyle}" />
+                    <TextBox Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Como você quer aparecer no app" Margin="0,0,0,14" />
+
+                    <TextBlock Text="Nome do lar financeiro" Style="{StaticResource FormLabelStyle}" />
+                    <TextBox Text="{Binding HouseholdName, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Ex.: Casa da Ana e do Lucas" Margin="0,0,0,14" />
+
+                    <TextBlock Text="Código do parceiro (opcional)" Style="{StaticResource FormLabelStyle}" />
+                    <TextBox Text="{Binding InviteCode, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Use se já existir um lar criado pelo casal" Margin="0,0,0,14" />
+                </StackPanel>
+
+                <TextBlock Text="E-mail" Style="{StaticResource FormLabelStyle}" />
+                <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Seu e-mail principal" Margin="0,0,0,14" />
+
+                <TextBlock Text="Senha" Style="{StaticResource FormLabelStyle}" />
+                <PasswordBox x:Name="PasswordBox" PasswordChanged="PasswordBox_OnPasswordChanged" materialDesign:HintAssist.Hint="Crie uma senha segura" Margin="0,0,0,14" />
+
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource NegativeBrush}" TextWrapping="Wrap" Visibility="{Binding ErrorMessage, Converter={StaticResource TextToVisibilityConverter}}" />
+                <TextBlock Text="{Binding InfoMessage}" Foreground="{StaticResource AccentBrush}" TextWrapping="Wrap" Visibility="{Binding InfoMessage, Converter={StaticResource TextToVisibilityConverter}}" Margin="0,8,0,0" />
+
+                <Button Command="{Binding SubmitCommand}"
+                        Content="Criar meu lar financeiro"
+                        Style="{StaticResource AccentContainedButtonStyle}"
+                        Visibility="{Binding IsRegisterMode, Converter={StaticResource BooleanMatchToVisibilityConverter}, ConverterParameter=True}"
+                        Margin="0,18,0,0" />
+
+                <Button Command="{Binding SubmitCommand}"
+                        Content="Entrar no Couple Finance"
+                        Style="{StaticResource AccentContainedButtonStyle}"
+                        Visibility="{Binding IsRegisterMode, Converter={StaticResource BooleanMatchToVisibilityConverter}, ConverterParameter=False}"
+                        Margin="0,18,0,0" />
+
+                <Button Command="{Binding ToggleModeCommand}"
+                        Content="Já tenho conta"
+                        Style="{StaticResource SubtleButtonStyle}"
+                        Visibility="{Binding IsRegisterMode, Converter={StaticResource BooleanMatchToVisibilityConverter}, ConverterParameter=True}"
+                        Margin="0,14,0,0"
+                        HorizontalAlignment="Left" />
+
+                <Button Command="{Binding ToggleModeCommand}"
+                        Content="Quero criar conta"
+                        Style="{StaticResource SubtleButtonStyle}"
+                        Visibility="{Binding IsRegisterMode, Converter={StaticResource BooleanMatchToVisibilityConverter}, ConverterParameter=False}"
+                        Margin="0,14,0,0"
+                        HorizontalAlignment="Left" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

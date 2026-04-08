@@ -1,0 +1,335 @@
+<UserControl x:Class="CoupleFinance.Desktop.Views.Pages.DashboardPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <StackPanel>
+        <WrapPanel x:Name="MetricCardsPanel"
+                   Margin="0,0,0,20">
+            <Border x:Name="IncomeMetricCard"
+                    Style="{StaticResource IncomeMetricCardStyle}"
+                    Height="164"
+                    Margin="0,0,16,16">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Receitas do periodo" Style="{StaticResource EyebrowTextStyle}" />
+                        <Border Grid.Column="1" Width="38" Height="38" CornerRadius="12" Background="{StaticResource InsetOverlayBrush}" BorderBrush="{StaticResource PositiveBrush}" BorderThickness="1">
+                            <materialDesign:PackIcon Kind="TrendingUp" Foreground="{StaticResource PositiveBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
+                    <TextBlock Text="{Binding CurrentSnapshot.Dashboard.TotalIncome, StringFormat={}{0:C2}}" Style="{StaticResource MetricValueStyle}" Foreground="{StaticResource PositiveBrush}" Margin="0,12,0,0" />
+                    <TextBlock Text="Tudo o que entrou no recorte atual." Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+
+            <Border x:Name="ExpenseMetricCard"
+                    Style="{StaticResource ExpenseMetricCardStyle}"
+                    Height="164"
+                    Margin="0,0,16,16">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Despesas do periodo" Style="{StaticResource EyebrowTextStyle}" />
+                        <Border Grid.Column="1" Width="38" Height="38" CornerRadius="12" Background="{StaticResource InsetOverlayBrush}" BorderBrush="{StaticResource NegativeBrush}" BorderThickness="1">
+                            <materialDesign:PackIcon Kind="TrendingDown" Foreground="{StaticResource NegativeBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
+                    <TextBlock Text="{Binding CurrentSnapshot.Dashboard.TotalExpenses, StringFormat={}{0:C2}}" Style="{StaticResource MetricValueStyle}" Foreground="{StaticResource NegativeBrush}" Margin="0,12,0,0" />
+                    <TextBlock Text="Saidas que exigem atencao agora." Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+
+            <Border x:Name="BalanceMetricCard"
+                    Style="{StaticResource BalanceMetricCardStyle}"
+                    Height="164"
+                    Margin="0,0,16,16">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Saldo + investimentos" Style="{StaticResource EyebrowTextStyle}" />
+                        <Border Grid.Column="1" Width="38" Height="38" CornerRadius="12" Background="{StaticResource InsetOverlayBrush}" BorderBrush="{StaticResource WarningBrush}" BorderThickness="1">
+                            <materialDesign:PackIcon Kind="BankOutline" Foreground="{StaticResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
+                    <TextBlock Text="{Binding CurrentSnapshot.Dashboard.CurrentBalance, StringFormat={}{0:C2}}" Style="{StaticResource MetricValueStyle}" Foreground="{StaticResource WarningBrush}" Margin="0,12,0,0" />
+                    <TextBlock Text="Visao patrimonial mais proxima da realidade do casal." Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+
+            <Border x:Name="InvoiceMetricCard"
+                    Style="{StaticResource InvoiceMetricCardStyle}"
+                    Height="164"
+                    Margin="0,0,0,16">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Faturas em aberto" Style="{StaticResource EyebrowTextStyle}" />
+                        <Border Grid.Column="1" Width="38" Height="38" CornerRadius="12" Background="{StaticResource InsetOverlayBrush}" BorderBrush="{StaticResource InfoBrush}" BorderThickness="1">
+                            <materialDesign:PackIcon Kind="CreditCardOutline" Foreground="{StaticResource InfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
+                    <TextBlock Text="{Binding TotalOpenInvoices, StringFormat={}{0:C2}}" Style="{StaticResource MetricValueStyle}" Foreground="{StaticResource InfoBrush}" Margin="0,12,0,0" />
+                    <TextBlock Text="{Binding CardUsagePercent, StringFormat=Uso do limite total: {0:N1}%}" Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+        </WrapPanel>
+
+        <WrapPanel x:Name="PrimaryCardsPanel"
+                   Margin="0,0,0,18">
+            <Border x:Name="CoupleSummaryCard"
+                    Style="{StaticResource VintageHeroCardStyle}"
+                    Background="{StaticResource VintageHeroBrush}"
+                    BorderBrush="{StaticResource BorderAccentBrush}"
+                    Margin="0,0,18,18">
+                <StackPanel>
+                    <Border Width="92" Height="6" Background="{StaticResource AccentBrush}" CornerRadius="3" HorizontalAlignment="Left" />
+                    <TextBlock Text="Resumo do casal" Style="{StaticResource CardTitleStyle}" Margin="0,16,0,0" />
+                    <TextBlock Text="Quem puxou a renda e onde o orcamento esta concentrado." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+                    <WrapPanel Margin="0,14,0,0">
+                        <Border Style="{StaticResource ToolbarChipStyle}" Background="{StaticResource PositiveSoftBrush}" BorderBrush="{StaticResource PositiveBrush}"><TextBlock Text="Seu lado" FontWeight="SemiBold" /></Border>
+                        <Border Style="{StaticResource ToolbarChipStyle}" Background="{StaticResource InfoSoftBrush}" BorderBrush="{StaticResource InfoBrush}"><TextBlock Text="Parceiro" FontWeight="SemiBold" /></Border>
+                        <Border Style="{StaticResource ToolbarChipStyle}" Background="{StaticResource WarningSoftBrush}" BorderBrush="{StaticResource WarningBrush}"><TextBlock Text="Conjunto" FontWeight="SemiBold" /></Border>
+                    </WrapPanel>
+                    <ItemsControl ItemsSource="{Binding ContributionCards}" Margin="0,18,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource SubtlePanelStyle}" Margin="0,0,0,12" Background="{StaticResource InsetOverlayBrush}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Border Width="44" Height="44" Background="{Binding AccentBrush}" CornerRadius="14" Opacity="0.28" BorderBrush="{Binding AccentBrush}" BorderThickness="1" VerticalAlignment="Center">
+                                            <materialDesign:PackIcon Kind="{Binding IconKind}" Foreground="{Binding AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Border>
+                                        <StackPanel Grid.Column="1" Margin="14,0,14,0">
+                                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                                            <TextBlock Text="{Binding Subtitle}" Style="{StaticResource CardSubtitleStyle}" Margin="0,4,0,0" />
+                                            <TextBlock Text="{Binding Caption}" Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="2" Text="{Binding Amount, StringFormat={}{0:C2}}" Foreground="{Binding AccentBrush}" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Border x:Name="RecentActivityCard"
+                    Style="{StaticResource GlassCardStyle}"
+                    Margin="0,0,0,18">
+                <StackPanel>
+                    <Border Width="92" Height="6" Background="{StaticResource VintageCoralBrush}" CornerRadius="3" HorizontalAlignment="Left" />
+                    <TextBlock Text="Atividade recente" Style="{StaticResource CardTitleStyle}" Margin="0,16,0,0" />
+                    <TextBlock Text="Os lancamentos mais recentes para validar se o fluxo esta coerente." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+                    <ItemsControl ItemsSource="{Binding RecentTransactions}" Margin="0,18,0,0" Visibility="{Binding RecentTransactions.Count, Converter={StaticResource CountToVisibilityConverter}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource SubtlePanelStyle}" Margin="0,0,0,12">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Border Width="42" Height="42" Background="{Binding AccentBrush}" CornerRadius="14" Opacity="0.22" BorderBrush="{Binding AccentBrush}" BorderThickness="1" VerticalAlignment="Center">
+                                            <materialDesign:PackIcon Kind="{Binding IconKind}" Foreground="{Binding AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Border>
+                                        <StackPanel Grid.Column="1" Margin="14,0,14,0">
+                                            <TextBlock Text="{Binding Description}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                            <TextBlock Text="{Binding SupportingText}" Style="{StaticResource CardSubtitleStyle}" Margin="0,4,0,0" />
+                                            <TextBlock Text="{Binding OwnerLabel, StringFormat=Responsavel: {0}}" Style="{StaticResource MetricCaptionStyle}" Margin="0,6,0,0" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2" HorizontalAlignment="Right">
+                                            <TextBlock Text="{Binding SignedAmount, StringFormat={}{0:C2}}" Foreground="{Binding SignedAmount, Converter={StaticResource CurrencyColorConverter}}" FontWeight="Bold" HorizontalAlignment="Right" />
+                                            <TextBlock Text="{Binding Date, StringFormat={}{0:dd/MM}}" Style="{StaticResource MetricCaptionStyle}" Margin="0,6,0,0" HorizontalAlignment="Right" />
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Border Style="{StaticResource EmptyStateCardStyle}" Visibility="{Binding RecentTransactions.Count, Converter={StaticResource CountToVisibilityConverter}, ConverterParameter=Invert}">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <Border Width="56" Height="56" CornerRadius="18" Background="{StaticResource InfoSoftBrush}" BorderBrush="{StaticResource InfoBrush}" BorderThickness="1">
+                                <materialDesign:PackIcon Kind="ReceiptTextOutline" Width="28" Height="28" Foreground="{StaticResource InfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="Ainda nao ha movimentacoes no periodo" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,14,0,0" />
+                            <TextBlock Text="Comece registrando sua primeira receita ou despesa para alimentar os graficos." Style="{StaticResource CardSubtitleStyle}" TextAlignment="Center" Margin="0,8,0,0" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </WrapPanel>
+
+        <WrapPanel x:Name="ChartsCardsPanel"
+                   Margin="0,0,0,18">
+            <Border x:Name="TrendChartCard"
+                    Style="{StaticResource GlassCardStyle}"
+                    Margin="0,0,18,18">
+                <StackPanel>
+                    <Border Width="92" Height="6" Background="{StaticResource VintageTealBrush}" CornerRadius="3" HorizontalAlignment="Left" />
+                    <TextBlock Text="Evolucao do periodo" Style="{StaticResource CardTitleStyle}" Margin="0,16,0,0" />
+                    <TextBlock Text="Receitas, despesas e saldo andando juntos para mostrar o ritmo do mes." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+                    <Grid Margin="0,18,0,0">
+                        <Border Style="{StaticResource InnerCardStyle}" Background="{StaticResource ChartSurfaceBrush}" Visibility="{Binding HasTrendData, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <lvc:CartesianChart Series="{Binding TrendSeries}" XAxes="{Binding TrendXAxes}" YAxes="{Binding TrendYAxes}" Height="320" LegendPosition="Top" Background="Transparent" />
+                        </Border>
+                        <Border Style="{StaticResource EmptyStateCardStyle}" Visibility="{Binding HasTrendData, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <Border Width="56" Height="56" CornerRadius="18" Background="{StaticResource PositiveSoftBrush}" BorderBrush="{StaticResource PositiveBrush}" BorderThickness="1">
+                                    <materialDesign:PackIcon Kind="ChartLine" Width="28" Height="28" Foreground="{StaticResource PositiveBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <TextBlock Text="Sem dados suficientes para montar a evolucao" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,14,0,0" />
+                                <TextBlock Text="Assim que voce registrar entradas e saidas, o historico do periodo aparece aqui." Style="{StaticResource CardSubtitleStyle}" TextAlignment="Center" Margin="0,8,0,0" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border x:Name="CategoryChartCard"
+                    Style="{StaticResource GlassCardStyle}"
+                    Margin="0,0,0,18">
+                <StackPanel>
+                    <Border Width="92" Height="6" Background="{StaticResource VintageGoldBrush}" CornerRadius="3" HorizontalAlignment="Left" />
+                    <TextBlock Text="Distribuicao por categoria" Style="{StaticResource CardTitleStyle}" Margin="0,16,0,0" />
+                    <TextBlock Text="Onde o dinheiro esta concentrado nas despesas filtradas." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+                    <Grid Margin="0,18,0,0">
+                        <Border Style="{StaticResource InnerCardStyle}" Background="{StaticResource ChartSurfaceBrush}" Visibility="{Binding HasCategoryData, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <lvc:PieChart Series="{Binding CategorySeries}" Height="280" LegendPosition="Right" Background="Transparent" />
+                        </Border>
+                        <Border Style="{StaticResource EmptyStateCardStyle}" Visibility="{Binding HasCategoryData, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <Border Width="56" Height="56" CornerRadius="18" Background="{StaticResource WarningSoftBrush}" BorderBrush="{StaticResource WarningBrush}" BorderThickness="1">
+                                    <materialDesign:PackIcon Kind="ChartDonut" Width="28" Height="28" Foreground="{StaticResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <TextBlock Text="Nenhuma categoria com gasto relevante ainda" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,14,0,0" />
+                                <TextBlock Text="Cadastre despesas para enxergar a composicao real do orcamento." Style="{StaticResource CardSubtitleStyle}" TextAlignment="Center" Margin="0,8,0,0" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding CategorySpendItems}" Margin="0,18,0,0" Visibility="{Binding CategorySpendItems.Count, Converter={StaticResource CountToVisibilityConverter}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource SubtlePanelStyle}" Margin="0,0,0,10">
+                                    <StackPanel>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                                            <TextBlock Grid.Column="1" Text="{Binding Amount, StringFormat={}{0:C2}}" Foreground="{Binding AccentBrush}" FontWeight="SemiBold" />
+                                        </Grid>
+                                        <ProgressBar Value="{Binding RatioPercent}" Maximum="100" Foreground="{Binding AccentBrush}" />
+                                        <TextBlock Text="{Binding RatioPercent, StringFormat={}{0:N1}% das despesas do periodo}" Style="{StaticResource MetricCaptionStyle}" Margin="0,6,0,0" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </WrapPanel>
+
+        <WrapPanel x:Name="BottomCardsPanel">
+            <Border x:Name="ComparisonCard"
+                    Style="{StaticResource GlassCardStyle}"
+                    Margin="0,0,18,0">
+                <StackPanel>
+                    <Border Width="92" Height="6" Background="{StaticResource VintageBlushBrush}" CornerRadius="3" HorizontalAlignment="Left" />
+                    <TextBlock Text="Comparativo recente" Style="{StaticResource CardTitleStyle}" Margin="0,16,0,0" />
+                    <TextBlock Text="Os ultimos blocos do periodo mostram se o casal esta estabilizando ou acelerando gastos." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+                    <Grid Margin="0,18,0,0">
+                        <Border Style="{StaticResource InnerCardStyle}" Background="{StaticResource ChartSurfaceBrush}" Visibility="{Binding HasComparisonData, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <lvc:CartesianChart Series="{Binding ComparisonSeries}" XAxes="{Binding ComparisonXAxes}" YAxes="{Binding ComparisonYAxes}" Height="300" LegendPosition="Top" Background="Transparent" />
+                        </Border>
+                        <Border Style="{StaticResource EmptyStateCardStyle}" Visibility="{Binding HasComparisonData, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <Border Width="56" Height="56" CornerRadius="18" Background="{StaticResource InfoSoftBrush}" BorderBrush="{StaticResource InfoBrush}" BorderThickness="1">
+                                    <materialDesign:PackIcon Kind="ChartBar" Width="28" Height="28" Foreground="{StaticResource InfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <TextBlock Text="Ainda nao ha base comparativa suficiente" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,14,0,0" />
+                                <TextBlock Text="Com mais lancamentos, este bloco vai mostrar o ritmo recente entre entradas e saidas." Style="{StaticResource CardSubtitleStyle}" TextAlignment="Center" Margin="0,8,0,0" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <StackPanel x:Name="PlanningColumnPanel">
+                <Border Style="{StaticResource GlassCardStyle}">
+                    <StackPanel>
+                        <Border Width="92" Height="6" Background="{StaticResource AccentBrush}" CornerRadius="3" HorizontalAlignment="Left" />
+                        <TextBlock Text="Planejamento do periodo" Style="{StaticResource CardTitleStyle}" Margin="0,16,0,0" />
+                        <TextBlock Text="{Binding CurrentSnapshot.Projection.Recommendation}" Style="{StaticResource CardSubtitleStyle}" Margin="0,10,0,0" />
+                        <Border Style="{StaticResource SubtlePanelStyle}" Margin="0,18,0,0" Background="{StaticResource WarningSoftBrush}" BorderBrush="{StaticResource WarningBrush}">
+                            <StackPanel>
+                                <TextBlock Text="{Binding CurrentSnapshot.Projection.AvailableToSave, StringFormat=Disponivel para poupar: {0:C2}}" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding CurrentSnapshot.Projection.SavingsRate, StringFormat=Taxa de poupanca estimada: {0:N2}%}" Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                                <TextBlock Text="{Binding TotalInvestmentProfit, StringFormat=Resultado atual dos investimentos: {0:C2}}" Style="{StaticResource MetricCaptionStyle}" Margin="0,6,0,0" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource GlassCardStyle}">
+                    <StackPanel>
+                        <Border Width="92" Height="6" Background="{StaticResource VintageTealBrush}" CornerRadius="3" HorizontalAlignment="Left" />
+                        <TextBlock Text="Metas em foco" Style="{StaticResource CardTitleStyle}" Margin="0,16,0,0" />
+                        <TextBlock Text="Progresso, valor restante e o aporte sugerido para cada objetivo." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+                        <ItemsControl ItemsSource="{Binding GoalOverviewItems}" Margin="0,18,0,0" Visibility="{Binding GoalOverviewItems.Count, Converter={StaticResource CountToVisibilityConverter}}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource SubtlePanelStyle}" Margin="0,0,0,12">
+                                        <StackPanel>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                                                    <TextBlock Text="{Binding TypeLabel}" Style="{StaticResource CardSubtitleStyle}" Margin="0,4,0,0" />
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="1" Text="{Binding ProgressPercent, StringFormat={}{0:N0}%}" Foreground="{Binding AccentBrush}" FontWeight="Bold" VerticalAlignment="Center" />
+                                            </Grid>
+                                            <ProgressBar Value="{Binding ProgressPercent}" Maximum="100" Foreground="{Binding AccentBrush}" />
+                                            <TextBlock Text="{Binding RemainingAmount, StringFormat=Faltam {0:C2}}" Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                                            <TextBlock Text="{Binding Recommendation}" Style="{StaticResource MetricCaptionStyle}" Margin="0,4,0,0" TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <Border Style="{StaticResource EmptyStateCardStyle}" Visibility="{Binding GoalOverviewItems.Count, Converter={StaticResource CountToVisibilityConverter}, ConverterParameter=Invert}">
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <Border Width="56" Height="56" CornerRadius="18" Background="{StaticResource PositiveSoftBrush}" BorderBrush="{StaticResource PositiveBrush}" BorderThickness="1">
+                                    <materialDesign:PackIcon Kind="BullseyeArrow" Width="28" Height="28" Foreground="{StaticResource PositiveBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <TextBlock Text="Nenhuma meta cadastrada ainda" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,14,0,0" />
+                                <TextBlock Text="Quando voces definirem um objetivo, a projecao mensal aparece aqui automaticamente." Style="{StaticResource CardSubtitleStyle}" TextAlignment="Center" Margin="0,8,0,0" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </WrapPanel>
+    </StackPanel>
+</UserControl>

@@ -1,0 +1,194 @@
+<UserControl x:Class="CoupleFinance.Desktop.Views.Pages.TransactionsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <UserControl.Resources>
+        <DataTemplate x:Key="EnumComboTemplate">
+            <TextBlock Text="{Binding Converter={StaticResource EnumDisplayConverter}}" />
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <StackPanel>
+        <WrapPanel x:Name="SummaryCardsPanel" Margin="0,0,0,0">
+            <Border x:Name="IncomeVisibleCard" Style="{StaticResource IncomeSummaryMetricCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Receitas visíveis" Style="{StaticResource EyebrowTextStyle}" />
+                    <TextBlock Text="{Binding CurrentSnapshot.Dashboard.TotalIncome, StringFormat={}{0:C2}}" Style="{StaticResource MetricValueStyle}" Margin="0,10,0,0" />
+                    <TextBlock Text="Use o filtro do topo para alternar entre visão total, individual e conjunta." Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+            <Border x:Name="ExpenseVisibleCard" Style="{StaticResource ExpenseSummaryMetricCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Despesas visíveis" Style="{StaticResource EyebrowTextStyle}" />
+                    <TextBlock Text="{Binding CurrentSnapshot.Dashboard.TotalExpenses, StringFormat={}{0:C2}}" Style="{StaticResource MetricValueStyle}" Margin="0,10,0,0" />
+                    <TextBlock Text="Tudo o que já pesa no período selecionado." Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+            <Border x:Name="TransactionCountCard" Style="{StaticResource BalanceSummaryMetricCardStyle}" Margin="0,0,0,18">
+                <StackPanel>
+                    <TextBlock Text="Lançamentos encontrados" Style="{StaticResource EyebrowTextStyle}" />
+                    <TextBlock Text="{Binding FilteredTransactions.Count}" Style="{StaticResource MetricValueStyle}" Margin="0,10,0,0" />
+                    <TextBlock Text="Busca, tipo e filtros do topo refinam a lista automaticamente." Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                </StackPanel>
+            </Border>
+        </WrapPanel>
+
+        <WrapPanel x:Name="MainSectionsPanel">
+            <Border x:Name="NewTransactionCard" Style="{StaticResource ResponsiveMainGlassCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Novo lançamento" Style="{StaticResource CardTitleStyle}" />
+                    <TextBlock Text="Preencha o essencial, escolha o responsável e deixe o período consistente desde a origem." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+
+                    <Grid Margin="0,20,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Margin="0,0,10,14">
+                            <TextBlock Text="Descrição" Style="{StaticResource FormLabelStyle}" />
+                            <TextBox Text="{Binding TransactionForm.Description, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Ex.: Salário, mercado, aluguel" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Margin="10,0,0,14">
+                            <TextBlock Text="Valor" Style="{StaticResource FormLabelStyle}" />
+                            <TextBox Text="{Binding TransactionForm.Amount, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Informe o valor em reais" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Margin="0,0,10,14">
+                            <TextBlock Text="Tipo" Style="{StaticResource FormLabelStyle}" />
+                            <ComboBox ItemsSource="{Binding TransactionKinds}" ItemTemplate="{StaticResource EnumComboTemplate}" SelectedItem="{Binding TransactionForm.Kind}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Grid.Column="1" Margin="10,0,0,14">
+                            <TextBlock Text="Responsabilidade" Style="{StaticResource FormLabelStyle}" />
+                            <ComboBox ItemsSource="{Binding EntryScopes}" ItemTemplate="{StaticResource EnumComboTemplate}" SelectedItem="{Binding TransactionForm.Scope}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="2" Margin="0,0,10,14">
+                            <TextBlock Text="Conta" Style="{StaticResource FormLabelStyle}" />
+                            <ComboBox ItemsSource="{Binding CurrentSnapshot.Accounts}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding TransactionForm.BankAccountId}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="2" Grid.Column="1" Margin="10,0,0,14">
+                            <TextBlock Text="Categoria" Style="{StaticResource FormLabelStyle}" />
+                            <ComboBox ItemsSource="{Binding CurrentSnapshot.Categories}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding TransactionForm.CategoryId}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="3" Margin="0,0,10,0">
+                            <TextBlock Text="Data" Style="{StaticResource FormLabelStyle}" />
+                            <DatePicker SelectedDate="{Binding TransactionForm.OccurredOn}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="3" Grid.Column="1" Margin="10,0,0,0">
+                            <TextBlock Text="Observações" Style="{StaticResource FormLabelStyle}" />
+                            <TextBox Text="{Binding TransactionForm.Notes, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Complemento opcional para facilitar futuras buscas" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Button Content="Salvar movimentação" Command="{Binding SaveTransactionCommand}" Style="{StaticResource AccentContainedButtonStyle}" HorizontalAlignment="Left" Margin="0,18,0,0" />
+                </StackPanel>
+            </Border>
+
+            <Border x:Name="TransferCard" Style="{StaticResource ResponsiveSideGlassCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Transferência entre contas" Style="{StaticResource CardTitleStyle}" />
+                    <TextBlock Text="O débito e o crédito são registrados automaticamente para manter o fluxo correto." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+
+                    <StackPanel Margin="0,20,0,0">
+                        <TextBlock Text="Conta de origem" Style="{StaticResource FormLabelStyle}" />
+                        <ComboBox ItemsSource="{Binding CurrentSnapshot.Accounts}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding TransferForm.FromBankAccountId}" />
+
+                        <TextBlock Text="Conta de destino" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                        <ComboBox ItemsSource="{Binding CurrentSnapshot.Accounts}" DisplayMemberPath="Name" SelectedValuePath="Id" SelectedValue="{Binding TransferForm.ToBankAccountId}" />
+
+                        <TextBlock Text="Valor" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                        <TextBox Text="{Binding TransferForm.Amount, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Valor da transferência" />
+
+                        <TextBlock Text="Data" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                        <DatePicker SelectedDate="{Binding TransferForm.OccurredOn}" />
+
+                        <TextBlock Text="Descrição" Style="{StaticResource FormLabelStyle}" Margin="0,14,0,6" />
+                        <TextBox Text="{Binding TransferForm.Description, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Ex.: reserva do mês, ajuste de caixa" />
+                    </StackPanel>
+
+                    <Button Content="Registrar transferência" Command="{Binding SaveTransferCommand}" Style="{StaticResource SecondaryButtonStyle}" HorizontalAlignment="Left" Margin="0,18,0,0" />
+                </StackPanel>
+            </Border>
+        </WrapPanel>
+
+        <Border Style="{StaticResource GlassCardStyle}">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Margin="0,0,24,0">
+                        <TextBlock Text="Movimentações do período" Style="{StaticResource CardTitleStyle}" />
+                        <TextBlock Text="Lista viva com busca por descrição, conta, categoria, responsável e tipo." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+                    </StackPanel>
+
+                    <TextBox Grid.Column="1" Width="260" Margin="0,0,12,0" Text="{Binding TransactionSearchText, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Buscar lançamento" />
+                    <ComboBox Grid.Column="2" Width="160" ItemsSource="{Binding TransactionTypeFilters}" SelectedItem="{Binding SelectedTransactionTypeFilter}" />
+                </Grid>
+
+                <ItemsControl ItemsSource="{Binding FilteredTransactions}" Margin="0,20,0,0" Visibility="{Binding FilteredTransactions.Count, Converter={StaticResource CountToVisibilityConverter}}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource InnerCardStyle}" Margin="0,0,0,12">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Width="44" Height="44" Background="{Binding AccentBrush}" CornerRadius="14" Opacity="0.18" VerticalAlignment="Center">
+                                        <materialDesign:PackIcon Kind="{Binding IconKind}" Foreground="{Binding AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+
+                                    <StackPanel Grid.Column="1" Margin="14,0,14,0">
+                                        <WrapPanel>
+                                            <TextBlock Text="{Binding Description}" FontWeight="SemiBold" Margin="0,0,10,0" />
+                                            <Border Background="{Binding AccentBrush}" CornerRadius="10" Padding="8,3" Opacity="0.18" Margin="0,0,8,0">
+                                                <TextBlock Text="{Binding KindLabel}" Foreground="{Binding AccentBrush}" FontSize="11" FontWeight="SemiBold" />
+                                            </Border>
+                                            <Border Background="{StaticResource SurfaceAltBrush}" CornerRadius="10" Padding="8,3">
+                                                <TextBlock Text="{Binding ScopeLabel}" Style="{StaticResource MetricCaptionStyle}" />
+                                            </Border>
+                                        </WrapPanel>
+                                        <TextBlock Text="{Binding SupportingText}" Style="{StaticResource CardSubtitleStyle}" Margin="0,6,0,0" />
+                                        <TextBlock Text="{Binding OwnerLabel, StringFormat=Responsável: {0}}" Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2" HorizontalAlignment="Right">
+                                        <TextBlock Text="{Binding SignedAmount, StringFormat={}{0:C2}}" Foreground="{Binding SignedAmount, Converter={StaticResource CurrencyColorConverter}}" FontSize="18" FontWeight="Bold" HorizontalAlignment="Right" />
+                                        <TextBlock Text="{Binding Date, StringFormat={}{0:dd/MM/yyyy}}" Style="{StaticResource MetricCaptionStyle}" Margin="0,6,0,0" HorizontalAlignment="Right" />
+                                        <TextBlock Text="{Binding AccountLabel}" Style="{StaticResource MetricCaptionStyle}" Margin="0,4,0,0" HorizontalAlignment="Right" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Border Style="{StaticResource EmptyStateCardStyle}" Margin="0,20,0,0" Visibility="{Binding FilteredTransactions.Count, Converter={StaticResource CountToVisibilityConverter}, ConverterParameter=Invert}">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <materialDesign:PackIcon Kind="Magnify" Width="34" Height="34" />
+                        <TextBlock Text="Nenhuma movimentação encontrada" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,14,0,0" />
+                        <TextBlock Text="Tente mudar a busca, o tipo ou registre um novo lançamento para começar a montar seu histórico." Style="{StaticResource CardSubtitleStyle}" TextAlignment="Center" Margin="0,8,0,0" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

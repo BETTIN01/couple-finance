@@ -1,0 +1,408 @@
+<UserControl x:Class="CoupleFinance.Desktop.Views.Pages.ShellPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:local="clr-namespace:CoupleFinance.Desktop.Views.Pages"
+             xmlns:presentation="clr-namespace:CoupleFinance.Desktop.Presentation">
+    <UserControl.Resources>
+        <DataTemplate x:Key="EnumComboTemplate">
+            <TextBlock Text="{Binding Converter={StaticResource EnumDisplayConverter}}" />
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid Margin="6,0,6,6">
+        <Border Background="{StaticResource ShellSurfaceBrush}"
+                CornerRadius="32"
+                BorderBrush="{StaticResource BorderBrushStrong}"
+                BorderThickness="1">
+            <Grid ClipToBounds="True">
+                <Border Height="6"
+                        VerticalAlignment="Top"
+                        CornerRadius="32,32,0,0"
+                        Background="{StaticResource VintageHeroBrush}"
+                        Opacity="0.95" />
+
+                <Grid Margin="0,6,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition x:Name="SidebarColumn" Width="264" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border x:Name="SidebarHost"
+                            Background="{StaticResource SidebarBrush}"
+                            CornerRadius="32,0,0,32"
+                            Padding="20,22,18,18">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      CanContentScroll="False"
+                                      presentation:SmoothScrollBehavior.Enable="True"
+                                      presentation:SmoothScrollBehavior.WheelChange="72"
+                                      presentation:SmoothScrollBehavior.Duration="0:0:0.22">
+                            <StackPanel>
+                                <StackPanel>
+                                    <TextBlock x:Name="BrandTitleText"
+                                               Text="Couple Finance"
+                                               FontFamily="{StaticResource DisplayFont}"
+                                               FontSize="26"
+                                               FontWeight="SemiBold" />
+                                    <TextBlock x:Name="SidebarBrandSubtitle"
+                                               Text="Organizacao financeira feita para decisoes em casal."
+                                               Style="{StaticResource CardSubtitleStyle}"
+                                               Margin="0,8,0,0" />
+                                    <StackPanel x:Name="PaletteRow"
+                                                Orientation="Horizontal"
+                                                Margin="0,16,0,0">
+                                        <Border Style="{StaticResource PaletteSwatchStyle}" Background="{StaticResource VintageNeutralBrush}" />
+                                        <Border Style="{StaticResource PaletteSwatchStyle}" Background="{StaticResource VintageTealBrush}" />
+                                        <Border Style="{StaticResource PaletteSwatchStyle}" Background="{StaticResource VintageCoralBrush}" />
+                                        <Border Style="{StaticResource PaletteSwatchStyle}" Background="{StaticResource VintageGoldBrush}" />
+                                        <Border Style="{StaticResource PaletteSwatchStyle}" Background="{StaticResource VintageBlushBrush}" Margin="0" />
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <Border x:Name="HouseholdHeroCard"
+                                        Style="{StaticResource VintageHeroCardStyle}"
+                                        Margin="0,18,0,16">
+                                    <StackPanel>
+                                        <Border Background="{StaticResource AccentSoftBrush}"
+                                                BorderBrush="{StaticResource BorderAccentBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="12"
+                                                Padding="10,4"
+                                                HorizontalAlignment="Left">
+                                            <TextBlock Text="Paleta vintage"
+                                                       Style="{StaticResource EyebrowTextStyle}"
+                                                       Foreground="{StaticResource TextPrimaryBrush}" />
+                                        </Border>
+
+                                        <TextBlock Text="Lar financeiro"
+                                                   Style="{StaticResource EyebrowTextStyle}"
+                                                   Margin="0,14,0,0" />
+                                        <TextBlock x:Name="HouseholdHeadlineText"
+                                                   Text="{Binding HouseholdHeadline}"
+                                                   FontSize="24"
+                                                   FontWeight="Bold"
+                                                   Margin="0,8,0,0"
+                                                   TextWrapping="Wrap" />
+                                        <TextBlock Text="{Binding HouseholdSubtitle}"
+                                                   Style="{StaticResource CardSubtitleStyle}"
+                                                   Margin="0,10,0,0" />
+
+                                        <Border Style="{StaticResource SubtlePanelStyle}"
+                                                Margin="0,18,0,0"
+                                                Background="{StaticResource InsetOverlayBrush}"
+                                                BorderBrush="{StaticResource BorderAccentBrush}">
+                                            <StackPanel>
+                                                <TextBlock Text="Codigo do casal" Style="{StaticResource EyebrowTextStyle}" />
+                                                <TextBlock Text="{Binding CurrentSnapshot.InviteCode}"
+                                                           FontSize="22"
+                                                           FontWeight="Bold"
+                                                           Margin="0,8,0,0" />
+                                                <TextBlock Text="{Binding CurrentSnapshot.Sync.StatusText}"
+                                                           Style="{StaticResource CardSubtitleStyle}"
+                                                           Margin="0,10,0,0" />
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+
+                                <StackPanel x:Name="SidebarNavigationPanel"
+                                            Margin="0,0,0,10">
+                                    <Button Style="{StaticResource SidebarButtonStyle}"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="Dashboard">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="ViewDashboard"
+                                                                     Margin="0,0,12,0"
+                                                                     Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                            <TextBlock Text="Dashboard"
+                                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource SidebarButtonStyle}"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="Transactions">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="SwapHorizontalBold"
+                                                                     Margin="0,0,12,0"
+                                                                     Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                            <TextBlock Text="Movimentacoes"
+                                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource SidebarButtonStyle}"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="Accounts">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="BankOutline"
+                                                                     Margin="0,0,12,0"
+                                                                     Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                            <TextBlock Text="Contas"
+                                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource SidebarButtonStyle}"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="Cards">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="CreditCardOutline"
+                                                                     Margin="0,0,12,0"
+                                                                     Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                            <TextBlock Text="Cartoes"
+                                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource SidebarButtonStyle}"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="Planning">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="BullseyeArrow"
+                                                                     Margin="0,0,12,0"
+                                                                     Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                            <TextBlock Text="Planejamento"
+                                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource SidebarButtonStyle}"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="Investments">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="ChartTimelineVariant"
+                                                                     Margin="0,0,12,0"
+                                                                     Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                            <TextBlock Text="Investimentos"
+                                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource SidebarButtonStyle}"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="Insights">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="LightbulbAutoOutline"
+                                                                     Margin="0,0,12,0"
+                                                                     Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                            <TextBlock Text="Insights"
+                                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource SidebarButtonStyle}"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="Settings">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="CogOutline"
+                                                                     Margin="0,0,12,0"
+                                                                     Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                            <TextBlock Text="Configuracoes"
+                                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+
+                                <Border x:Name="AccountCard"
+                                        Style="{StaticResource SubtlePanelStyle}"
+                                        Margin="0,6,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Sua conta" Style="{StaticResource EyebrowTextStyle}" />
+                                        <TextBlock Text="{Binding CurrentSnapshot.CurrentUser.DisplayName}"
+                                                   FontSize="18"
+                                                   FontWeight="SemiBold"
+                                                   Margin="0,6,0,0" />
+                                        <TextBlock Text="{Binding CurrentSnapshot.CurrentUser.Email}"
+                                                   Style="{StaticResource CardSubtitleStyle}"
+                                                   Margin="0,6,0,0"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   TextWrapping="NoWrap"
+                                                   ToolTip="{Binding CurrentSnapshot.CurrentUser.Email}" />
+                                        <Button Command="{Binding SignOutCommand}"
+                                                Style="{StaticResource SubtleButtonStyle}"
+                                                HorizontalAlignment="Left"
+                                                Margin="0,14,0,0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <materialDesign:PackIcon Kind="Logout"
+                                                                         Margin="0,0,8,0"
+                                                                         Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                                <TextBlock Text="Sair"
+                                                           Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+
+                    <Grid x:Name="MainContentHost"
+                          Grid.Column="1"
+                          Margin="20,64,20,24">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <Grid x:Name="HeaderLayoutGrid">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel x:Name="HeaderTitlePanel"
+                                        Grid.ColumnSpan="2">
+                                <Border x:Name="ShellHeaderBar"
+                                        Width="104"
+                                        Height="8"
+                                        Background="{StaticResource VintageHeroBrush}"
+                                        CornerRadius="4"
+                                        HorizontalAlignment="Left"
+                                        Margin="0,0,0,14" />
+                                <TextBlock x:Name="SectionTitleText"
+                                           Text="{Binding SectionTitle}"
+                                           Style="{StaticResource SectionTitleStyle}" />
+                                <TextBlock x:Name="SectionSubtitleText"
+                                           Text="{Binding SectionSubtitle}"
+                                           Style="{StaticResource SectionSubtitleStyle}"
+                                           Margin="0,10,0,0" />
+                            </StackPanel>
+
+                            <Border x:Name="HeaderFiltersCard"
+                                    Grid.Row="1"
+                                    Grid.ColumnSpan="2"
+                                    Style="{StaticResource SubtlePanelStyle}"
+                                    HorizontalAlignment="Left"
+                                    Margin="0,18,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="Recorte e visualizacao"
+                                               Style="{StaticResource EyebrowTextStyle}" />
+                                    <WrapPanel x:Name="HeaderActionsPanel"
+                                               Margin="0,12,0,0"
+                                               ItemHeight="48">
+                                        <Button Command="{Binding PreviousPeriodCommand}"
+                                                Style="{StaticResource ToolbarIconButtonStyle}">
+                                            <materialDesign:PackIcon Kind="ChevronLeft"
+                                                                     Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                        </Button>
+                                        <Border Style="{StaticResource ToolbarChipStyle}" Margin="10,0,10,10">
+                                            <TextBlock Text="{Binding PeriodLabel}" FontWeight="SemiBold" />
+                                        </Border>
+                                        <Button Command="{Binding NextPeriodCommand}"
+                                                Style="{StaticResource ToolbarIconButtonStyle}"
+                                                Margin="0,0,10,0">
+                                            <materialDesign:PackIcon Kind="ChevronRight"
+                                                                     Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                        </Button>
+                                        <ComboBox x:Name="PeriodCombo"
+                                                  Width="144"
+                                                  Style="{StaticResource ToolbarComboBoxStyle}"
+                                                  Margin="0,0,12,10"
+                                                  ItemsSource="{Binding PeriodPresets}"
+                                                  ItemTemplate="{StaticResource EnumComboTemplate}"
+                                                  SelectedItem="{Binding SelectedPeriod}" />
+                                        <ComboBox x:Name="OwnershipCombo"
+                                                  Width="196"
+                                                  Style="{StaticResource ToolbarComboBoxStyle}"
+                                                  Margin="0,0,0,10"
+                                                  ItemsSource="{Binding OwnershipFilters}"
+                                                  ItemTemplate="{StaticResource EnumComboTemplate}"
+                                                  SelectedItem="{Binding SelectedOwnership}" />
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <WrapPanel x:Name="HeaderStatusPanel"
+                                       Grid.Row="2"
+                                       Grid.ColumnSpan="2"
+                                       Margin="0,14,0,0">
+                                <Border Style="{StaticResource ToolbarChipStyle}">
+                                    <StackPanel>
+                                        <TextBlock Text="Filtro atual" Style="{StaticResource EyebrowTextStyle}" />
+                                        <TextBlock Text="{Binding HeaderFilterSummary}" FontWeight="SemiBold" Margin="0,2,0,0" />
+                                    </StackPanel>
+                                </Border>
+                                <Border x:Name="AppStatusChip"
+                                        Style="{StaticResource ToolbarChipStyle}"
+                                        Background="{StaticResource InfoSoftBrush}"
+                                        BorderBrush="{StaticResource InfoBrush}">
+                                    <StackPanel>
+                                        <TextBlock Text="Status do app" Style="{StaticResource EyebrowTextStyle}" />
+                                        <TextBlock Text="{Binding StatusMessage}"
+                                                   FontWeight="SemiBold"
+                                                   Margin="0,2,0,0"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource ToolbarChipStyle}"
+                                        Background="{StaticResource PositiveSoftBrush}"
+                                        BorderBrush="{StaticResource PositiveBrush}">
+                                    <StackPanel>
+                                        <TextBlock Text="Sincronizacao" Style="{StaticResource EyebrowTextStyle}" />
+                                        <TextBlock Text="{Binding CurrentSnapshot.Sync.StatusText}"
+                                                   FontWeight="SemiBold"
+                                                   Margin="0,2,0,0" />
+                                    </StackPanel>
+                                </Border>
+                                <Border x:Name="UpdateStatusChip"
+                                        Style="{StaticResource ToolbarChipStyle}"
+                                        Background="{StaticResource WarningSoftBrush}"
+                                        BorderBrush="{StaticResource WarningBrush}"
+                                        Visibility="{Binding Updater.IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <TextBlock Text="Atualizacoes" Style="{StaticResource EyebrowTextStyle}" />
+                                        <TextBlock Text="{Binding Updater.StatusText}"
+                                                   FontWeight="SemiBold"
+                                                   Margin="0,2,0,0"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+                            </WrapPanel>
+                        </Grid>
+
+                        <Grid Grid.Row="1" Margin="0,22,0,0">
+                            <ScrollViewer x:Name="SectionScrollViewer"
+                                          VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          CanContentScroll="False"
+                                          presentation:SmoothScrollBehavior.Enable="True"
+                                          presentation:SmoothScrollBehavior.WheelChange="112"
+                                          presentation:SmoothScrollBehavior.Duration="0:0:0.24">
+                                <Grid x:Name="SectionContentHost"
+                                      HorizontalAlignment="Stretch">
+                                    <local:DashboardPage Visibility="{Binding CurrentSection, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Dashboard}" />
+                                    <local:TransactionsPage Visibility="{Binding CurrentSection, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Transactions}" />
+                                    <local:AccountsPage Visibility="{Binding CurrentSection, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Accounts}" />
+                                    <local:CardsPage Visibility="{Binding CurrentSection, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Cards}" />
+                                    <local:PlanningPage Visibility="{Binding CurrentSection, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Planning}" />
+                                    <local:InvestmentsPage Visibility="{Binding CurrentSection, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Investments}" />
+                                    <local:InsightsPage Visibility="{Binding CurrentSection, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Insights}" />
+                                    <local:SettingsPage Visibility="{Binding CurrentSection, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Settings}" />
+                                </Grid>
+                            </ScrollViewer>
+
+                            <Border Background="{StaticResource BusyOverlayBrush}"
+                                    CornerRadius="24"
+                                    Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    Panel.ZIndex="10">
+                                <Border Style="{StaticResource VintageHeroCardStyle}"
+                                        Width="320"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Margin="24">
+                                    <StackPanel>
+                                        <ProgressBar IsIndeterminate="True" Height="6" Margin="0,0,0,16" />
+                                        <TextBlock Text="Atualizando sua visao financeira" FontSize="18" FontWeight="SemiBold" />
+                                        <TextBlock Text="O app esta recalculando saldos, graficos e recomendacoes do periodo."
+                                                   Style="{StaticResource CardSubtitleStyle}"
+                                                   Margin="0,8,0,0" />
+                                    </StackPanel>
+                                </Border>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
