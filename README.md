@@ -19,11 +19,12 @@ Aplicativo desktop para Windows, em `C# + WPF + MVVM`, focado em controle financ
 - Windows 10/11 x64
 - .NET 8 SDK
 - opcional: projeto Supabase para sincronizacao entre duas maquinas
+- opcional: repositorio publico no GitHub para publicar releases e atualizacoes automaticas
 - opcional: bucket publico no Supabase Storage para publicar releases
 
 ## Configuracao local
 
-Edite [appsettings.json](/C:/Users/rober/Desktop/App%20financeiro/CoupleFinance.Desktop/appsettings.json):
+Edite [`CoupleFinance.Desktop/appsettings.json`](./CoupleFinance.Desktop/appsettings.json):
 
 ```json
 {
@@ -63,7 +64,7 @@ dotnet run --project .\CoupleFinance.Desktop\CoupleFinance.Desktop.csproj
 
 ## Publicacao e distribuicao
 
-O fluxo principal agora passa pelo script [Publish-Release.ps1](/C:/Users/rober/Desktop/App%20financeiro/scripts/Publish-Release.ps1). Ele:
+O fluxo principal agora passa pelo script [`scripts/Publish-Release.ps1`](./scripts/Publish-Release.ps1). Ele:
 
 - compila a solucao
 - executa testes
@@ -72,14 +73,52 @@ O fluxo principal agora passa pelo script [Publish-Release.ps1](/C:/Users/rober/
 - gera `CoupleFinance-portable.zip`
 - gera `CoupleFinance-Setup.exe`
 - gera `update-manifest.json`
+- opcionalmente envia tudo para `GitHub Releases`
 - opcionalmente envia tudo para um bucket publico do Supabase Storage
 - falha por padrao quando voce tenta gerar uma release sem canal remoto de atualizacao, para evitar instalar builds que nunca vao atualizar em outra maquina
+
+### Melhor fluxo: GitHub Releases
+
+Esse e o caminho mais simples para fazer futuras atualizacoes chegarem automaticamente em outra maquina sem reenviar pasta manualmente.
+
+Pre-requisitos:
+
+- repositorio publico, por exemplo `BETTIN01/couple-finance`
+- token do GitHub com permissao para criar releases e enviar assets
+- token salvo em `GITHUB_TOKEN` ou passado por parametro
+
+Exemplo:
+
+```powershell
+$env:GITHUB_TOKEN = "seu_token_aqui"
+
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Publish-Release.ps1 `
+  -Version 1.1.20 `
+  -GitHubRepo "BETTIN01/couple-finance" `
+  -ReleaseNotes "Canal remoto de atualizacao via GitHub Releases."
+```
+
+Nesse modo, o script:
+
+- cria ou atualiza a release `v1.1.20`
+- publica `CoupleFinance-Setup.exe`
+- publica `CoupleFinance-portable.zip`
+- publica `update-manifest.json`
+- prepara o app com `ManifestUrl` estavel em:
+  `https://github.com/BETTIN01/couple-finance/releases/latest/download/update-manifest.json`
+
+Observacao importante:
+
+- para auto-update sem login, o repositorio precisa ser publico, ou pelo menos os assets precisam estar publicos
+- o manifesto usa a URL estavel `latest/download`, mas os arquivos internos apontam para a tag da versao, evitando baixar um pacote diferente do manifesto validado
+
+Se voce passar `-GitHubRepo` sem token, o script ainda gera tudo com as URLs certas do GitHub, mas o upload dos assets precisa ser feito manualmente na release.
 
 ### Release local com URLs ja definidas
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Publish-Release.ps1 `
-  -Version 1.1.15 `
+  -Version 1.1.20 `
   -PublicBaseUrl "https://seu-dominio.com/couple-finance/stable" `
   -ManifestUrl "https://seu-dominio.com/couple-finance/stable/update-manifest.json" `
   -ReleaseNotes "Setup proprio e canal remoto de atualizacao."
@@ -87,10 +126,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Publish-Release.ps
 
 Saidas:
 
-- [CoupleFinance.Desktop.exe](/C:/Users/rober/Desktop/App%20financeiro/artifacts/portable/CoupleFinance.Desktop.exe)
-- [CoupleFinance-portable.zip](/C:/Users/rober/Desktop/App%20financeiro/artifacts/installer/CoupleFinance-portable.zip)
-- [CoupleFinance-Setup.exe](/C:/Users/rober/Desktop/App%20financeiro/artifacts/installer/CoupleFinance-Setup.exe)
-- [update-manifest.json](/C:/Users/rober/Desktop/App%20financeiro/artifacts/installer/update-manifest.json)
+- [`artifacts/portable/CoupleFinance.Desktop.exe`](./artifacts/portable/CoupleFinance.Desktop.exe)
+- [`artifacts/installer/CoupleFinance-portable.zip`](./artifacts/installer/CoupleFinance-portable.zip)
+- [`artifacts/installer/CoupleFinance-Setup.exe`](./artifacts/installer/CoupleFinance-Setup.exe)
+- [`artifacts/installer/update-manifest.json`](./artifacts/installer/update-manifest.json)
 
 ### Release com upload direto para Supabase Storage
 
@@ -98,7 +137,7 @@ Use um bucket publico ja criado, por exemplo `releases`.
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Publish-Release.ps1 `
-  -Version 1.1.15 `
+  -Version 1.1.20 `
   -ReleaseNotes "Setup proprio e canal remoto de atualizacao." `
   -SupabaseUrl "https://SEU-PROJETO.supabase.co" `
   -SupabaseAnonKey "SUA_CHAVE_ANON" `
@@ -118,7 +157,7 @@ E o app ja sai com `ManifestUrl` apontando para o manifesto publico, o que permi
 
 ## Instalador
 
-O setup distribuivel agora e o executavel gerado pelo projeto [CoupleFinance.Setup](/C:/Users/rober/Desktop/App%20financeiro/CoupleFinance.Setup/CoupleFinance.Setup.csproj).
+O setup distribuivel agora e o executavel gerado pelo projeto [`CoupleFinance.Setup`](./CoupleFinance.Setup/CoupleFinance.Setup.csproj).
 
 Ele instala o app em:
 
@@ -147,17 +186,17 @@ O app checa novas versoes no startup e depois continua verificando em ciclos aut
 
 1. Gere e publique uma release com manifesto remoto acessivel por HTTPS
 2. Instale essa release na maquina principal e na outra maquina
-3. Mantenha o `update-manifest.json` atualizado ao publicar novas versoes
+3. Publique as proximas releases no mesmo canal remoto
 
 Depois disso, o app baixa e aplica atualizacoes automaticamente em segundo plano, sem precisar reenviar a pasta inteira para o outro computador.
 
 Se voce quiser gerar um setup apenas para uso local, sem auto-update, acrescente `-AllowOfflineDistribution`. Nesse caso, a tela de configuracoes do app mostra claramente que o canal remoto nao foi configurado.
 
-Exemplo de manifesto em [update-manifest.example.json](/C:/Users/rober/Desktop/App%20financeiro/deployment/update-manifest.example.json).
+Exemplo de manifesto em [`deployment/update-manifest.example.json`](./deployment/update-manifest.example.json).
 
 ## Supabase
 
-Execute o SQL em [schema.sql](/C:/Users/rober/Desktop/App%20financeiro/supabase/schema.sql) para criar as tabelas minimas usadas por autenticacao complementar e sincronizacao.
+Execute o SQL em [`supabase/schema.sql`](./supabase/schema.sql) para criar as tabelas minimas usadas por autenticacao complementar e sincronizacao.
 
 Se quiser sincronizacao entre duas maquinas em redes diferentes, configure tambem:
 
@@ -166,14 +205,14 @@ Se quiser sincronizacao entre duas maquinas em redes diferentes, configure tambe
 
 ## Estrutura
 
-- [CoupleFinance.Desktop](/C:/Users/rober/Desktop/App%20financeiro/CoupleFinance.Desktop): UI WPF, tema, navegacao e viewmodels
-- [CoupleFinance.Application](/C:/Users/rober/Desktop/App%20financeiro/CoupleFinance.Application): contratos, DTOs, projecoes, dashboard e insights
-- [CoupleFinance.Domain](/C:/Users/rober/Desktop/App%20financeiro/CoupleFinance.Domain): entidades e enums
-- [CoupleFinance.Infrastructure](/C:/Users/rober/Desktop/App%20financeiro/CoupleFinance.Infrastructure): SQLite, auth, sync e servicos
-- [CoupleFinance.Setup](/C:/Users/rober/Desktop/App%20financeiro/CoupleFinance.Setup): instalador distribuivel em `.exe`
-- [CoupleFinance.Tests](/C:/Users/rober/Desktop/App%20financeiro/CoupleFinance.Tests): testes unitarios
+- [`CoupleFinance.Desktop`](./CoupleFinance.Desktop): UI WPF, tema, navegacao e viewmodels
+- [`CoupleFinance.Application`](./CoupleFinance.Application): contratos, DTOs, projecoes, dashboard e insights
+- [`CoupleFinance.Domain`](./CoupleFinance.Domain): entidades e enums
+- [`CoupleFinance.Infrastructure`](./CoupleFinance.Infrastructure): SQLite, auth, sync e servicos
+- [`CoupleFinance.Setup`](./CoupleFinance.Setup): instalador distribuivel em `.exe`
+- [`CoupleFinance.Tests`](./CoupleFinance.Tests): testes unitarios
 
 ## Observacoes
 
 - O pacote de graficos usado em WPF emite avisos `NU1701` no restore, mas a compilacao e a execucao do app seguem funcionais no ambiente atual.
-- O instalador legado do Inno Setup continua no repositorio em [CoupleFinance.iss](/C:/Users/rober/Desktop/App%20financeiro/installer/CoupleFinance.iss), mas a esteira principal agora usa o setup proprio em `.NET`.
+- O instalador legado do Inno Setup continua no repositorio em [`installer/CoupleFinance.iss`](./installer/CoupleFinance.iss), mas a esteira principal agora usa o setup proprio em `.NET`.

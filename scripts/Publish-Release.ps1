@@ -3,6 +3,10 @@ param(
     [string]$ReleaseNotes = "",
     [string]$PublicBaseUrl = "",
     [string]$ManifestUrl = "",
+    [string]$GitHubRepo = "",
+    [string]$GitHubToken = "",
+    [string]$GitHubTag = "",
+    [string]$GitHubReleaseName = "",
     [string]$SupabaseUrl = "",
     [string]$SupabaseAnonKey = "",
     [string]$StorageProjectUrl = "",
@@ -28,6 +32,7 @@ $setupExePath = Join-Path $installerOutputPath "CoupleFinance-Setup.exe"
 $manifestOutputPath = Join-Path $installerOutputPath "update-manifest.json"
 $portableAppSettingsPath = Join-Path $portableOutputPath "appsettings.json"
 $manifestGenerated = $false
+$gitHubReleaseUrl = ""
 
 function Get-ProjectVersion {
     param([string]$ProjectPath)
@@ -64,6 +69,31 @@ function Normalize-BaseUrl {
     }
 
     return $Value.Trim().TrimEnd("/")
+}
+
+function Normalize-GitHubRepo {
+    param([string]$Value)
+
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        return ""
+    }
+
+    $normalized = $Value.Trim()
+    if ($normalized -match "^https?://github\.com/(?<repo>[^/]+/[^/]+?)(?:\.git)?/?$") {
+        $normalized = $Matches["repo"]
+    }
+
+    if ($normalized.EndsWith(".git", [System.StringComparison]::OrdinalIgnoreCase)) {
+        $normalized = $normalized.Substring(0, $normalized.Length - 4)
+    }
+
+    $normalized = $normalized.Trim("/")
+
+    if ($normalized -notmatch "^[^/]+/[^/]+$") {
+        throw "GitHubRepo deve estar no formato owner/repo ou URL completa do repositiorio."
+    }
+
+    return $normalized
 }
 
 function Encode-StoragePath {
@@ -152,6 +182,147 @@ function Upload-SupabaseStorageObject {
     } | Out-Null
 }
 
+function Get-HttpStatusCode {
+    param([System.Management.Automation.ErrorRecord]$ErrorRecord)
+
+    if ($null -eq $ErrorRecord.Exception -or $null -eq $ErrorRecord.Exception.Response) {
+        return -1
+    }
+
+    return [int]$ErrorRecord.Exception.Response.StatusCode.value__
+}
+
+function Get-GitHubApiHeaders {
+    param([string]$Token)
+
+    return @{
+        Accept = "application/vnd.github+json"
+        Authorization = "Bearer $Token"
+        "User-Agent" = "CoupleFinance-ReleasePublisher"
+        "X-GitHub-Api-Version" = "2022-11-28"
+    }
+}
+
+function Invoke-GitHubJsonRequest {
+    param(
+        [string]$Method,
+        [string]$Uri,
+        [string]$Token,
+        $Body = $null
+    )
+
+    $headers = Get-GitHubApiHeaders -Token $Token
+    $invokeParams = @{
+        Method = $Method
+        Uri = $Uri
+        Headers = $headers
+    }
+
+    if ($null -ne $Body) {
+        $invokeParams.Body = ($Body | ConvertTo-Json -Depth 10 -Compress)
+        $invokeParams.ContentType = "application/json"
+    }
+
+    return Invoke-RestMethod @invokeParams
+}
+
+function Get-GitHubReleaseByTag {
+    param(
+        [string]$Repository,
+        [string]$Tag,
+        [string]$Token
+    )
+
+    $releaseEndpoint = "https://api.github.com/repos/$Repository/releases/tags/$([Uri]::EscapeDataString($Tag))"
+
+    try {
+        return Invoke-GitHubJsonRequest -Method Get -Uri $releaseEndpoint -Token $Token
+    }
+    catch {
+        if ((Get-HttpStatusCode -ErrorRecord $_) -eq 404) {
+            return $null
+        }
+
+        throw
+    }
+}
+
+function Upsert-GitHubRelease {
+    param(
+        [string]$Repository,
+        [string]$Tag,
+        [string]$ReleaseName,
+        [string]$Token,
+        [string]$Body
+    )
+
+    $existingRelease = Get-GitHubReleaseByTag -Repository $Repository -Tag $Tag -Token $Token
+    $payload = @{
+        tag_name = $Tag
+        name = $ReleaseName
+        body = $Body
+        draft = $false
+        prerelease = $false
+    }
+
+    if ($null -ne $existingRelease) {
+        $releaseEndpoint = "https://api.github.com/repos/$Repository/releases/$($existingRelease.id)"
+        return Invoke-GitHubJsonRequest -Method Patch -Uri $releaseEndpoint -Token $Token -Body $payload
+    }
+
+    $createEndpoint = "https://api.github.com/repos/$Repository/releases"
+    return Invoke-GitHubJsonRequest -Method Post -Uri $createEndpoint -Token $Token -Body $payload
+}
+
+function Remove-GitHubReleaseAsset {
+    param(
+        [string]$Repository,
+        [object]$Release,
+        [string]$AssetName,
+        [string]$Token
+    )
+
+    $asset = @($Release.assets) | Where-Object { $_.name -eq $AssetName } | Select-Object -First 1
+    if ($null -eq $asset) {
+        return
+    }
+
+    $headers = Get-GitHubApiHeaders -Token $Token
+    $deleteEndpoint = "https://api.github.com/repos/$Repository/releases/assets/$($asset.id)"
+    Invoke-RestMethod -Method Delete -Uri $deleteEndpoint -Headers $headers | Out-Null
+}
+
+function Get-AssetContentType {
+    param([string]$FilePath)
+
+    $extension = [System.IO.Path]::GetExtension($FilePath)
+    switch ($extension.ToLowerInvariant()) {
+        ".json" { return "application/json" }
+        ".zip" { return "application/zip" }
+        default { return "application/octet-stream" }
+    }
+}
+
+function Upload-GitHubReleaseAsset {
+    param(
+        [object]$Release,
+        [string]$AssetName,
+        [string]$FilePath,
+        [string]$Token
+    )
+
+    $uploadBaseUrl = ($Release.upload_url -replace "\{\?name,label\}$", "")
+    $uploadUrl = "{0}?name={1}" -f $uploadBaseUrl, [Uri]::EscapeDataString($AssetName)
+    $headers = Get-GitHubApiHeaders -Token $Token
+
+    Invoke-RestMethod `
+        -Method Post `
+        -Uri $uploadUrl `
+        -Headers $headers `
+        -InFile $FilePath `
+        -ContentType (Get-AssetContentType -FilePath $FilePath) | Out-Null
+}
+
 if ([string]::IsNullOrWhiteSpace($Version)) {
     $Version = Get-ProjectVersion -ProjectPath $desktopProjectPath
 }
@@ -160,12 +331,45 @@ $assemblyVersion = Get-AssemblyVersion -SemanticVersion $Version
 $normalizedPublicBaseUrl = Normalize-BaseUrl -Value $PublicBaseUrl
 $normalizedStorageProjectUrl = Normalize-BaseUrl -Value $StorageProjectUrl
 $normalizedStoragePrefix = ($StoragePrefix -replace "\\", "/").Trim("/")
+$normalizedGitHubRepo = Normalize-GitHubRepo -Value $GitHubRepo
 $canUploadToSupabaseStorage =
     -not [string]::IsNullOrWhiteSpace($normalizedStorageProjectUrl) -and
     -not [string]::IsNullOrWhiteSpace($StorageApiKey) -and
     -not [string]::IsNullOrWhiteSpace($StorageBucket)
 
-if ([string]::IsNullOrWhiteSpace($normalizedPublicBaseUrl) -and $canUploadToSupabaseStorage) {
+if ([string]::IsNullOrWhiteSpace($GitHubToken)) {
+    if (-not [string]::IsNullOrWhiteSpace($env:GITHUB_TOKEN)) {
+        $GitHubToken = $env:GITHUB_TOKEN
+    }
+    elseif (-not [string]::IsNullOrWhiteSpace($env:GH_TOKEN)) {
+        $GitHubToken = $env:GH_TOKEN
+    }
+}
+
+if (-not [string]::IsNullOrWhiteSpace($normalizedGitHubRepo) -and [string]::IsNullOrWhiteSpace($GitHubTag)) {
+    $GitHubTag = "v$Version"
+}
+
+if (-not [string]::IsNullOrWhiteSpace($normalizedGitHubRepo) -and [string]::IsNullOrWhiteSpace($GitHubReleaseName)) {
+    $GitHubReleaseName = "Couple Finance $Version"
+}
+
+$installerUrl = ""
+$portableUrl = ""
+$usesGitHubReleaseUrls = $false
+
+if (-not [string]::IsNullOrWhiteSpace($normalizedGitHubRepo) -and [string]::IsNullOrWhiteSpace($normalizedPublicBaseUrl)) {
+    $usesGitHubReleaseUrls = $true
+
+    if ([string]::IsNullOrWhiteSpace($ManifestUrl)) {
+        $ManifestUrl = "https://github.com/$normalizedGitHubRepo/releases/latest/download/update-manifest.json"
+    }
+
+    $installerUrl = "https://github.com/$normalizedGitHubRepo/releases/download/$GitHubTag/CoupleFinance-Setup.exe"
+    $portableUrl = "https://github.com/$normalizedGitHubRepo/releases/download/$GitHubTag/CoupleFinance-portable.zip"
+}
+
+if ([string]::IsNullOrWhiteSpace($normalizedPublicBaseUrl) -and $canUploadToSupabaseStorage -and -not $usesGitHubReleaseUrls) {
     $normalizedPublicBaseUrl = "{0}/storage/v1/object/public/{1}/{2}" -f $normalizedStorageProjectUrl, $StorageBucket.Trim("/"), $normalizedStoragePrefix
 }
 
@@ -173,8 +377,6 @@ if ([string]::IsNullOrWhiteSpace($ManifestUrl) -and -not [string]::IsNullOrWhite
     $ManifestUrl = "{0}/update-manifest.json" -f $normalizedPublicBaseUrl
 }
 
-$installerUrl = ""
-$portableUrl = ""
 if (-not [string]::IsNullOrWhiteSpace($normalizedPublicBaseUrl)) {
     $installerUrl = "{0}/packages/{1}/CoupleFinance-Setup.exe" -f $normalizedPublicBaseUrl, $Version
     $portableUrl = "{0}/packages/{1}/CoupleFinance-portable.zip" -f $normalizedPublicBaseUrl, $Version
@@ -186,7 +388,7 @@ $hasRemoteUpdateChannel =
     -not [string]::IsNullOrWhiteSpace($portableUrl)
 
 if (-not $hasRemoteUpdateChannel -and -not $AllowOfflineDistribution) {
-    throw "Esta release esta sem canal remoto de atualizacao. Informe -PublicBaseUrl/-ManifestUrl ou configure o upload no Supabase Storage. Use -AllowOfflineDistribution apenas se quiser distribuir um setup sem auto-update."
+    throw "Esta release esta sem canal remoto de atualizacao. Informe -GitHubRepo, -PublicBaseUrl/-ManifestUrl ou configure o upload no Supabase Storage. Use -AllowOfflineDistribution apenas se quiser distribuir um setup sem auto-update."
 }
 
 New-Item -ItemType Directory -Force -Path $portableOutputPath | Out-Null
@@ -273,7 +475,7 @@ Invoke-Step "Build do setup proprio" {
     Copy-Item -LiteralPath (Join-Path $setupPublishPath "CoupleFinance.Setup.exe") -Destination $setupExePath -Force
 }
 
-if (-not [string]::IsNullOrWhiteSpace($ManifestUrl) -and -not [string]::IsNullOrWhiteSpace($installerUrl) -and -not [string]::IsNullOrWhiteSpace($portableUrl)) {
+if ($hasRemoteUpdateChannel) {
     Invoke-Step "Geracao do manifesto de atualizacao" {
         & (Join-Path $PSScriptRoot "New-UpdateManifest.ps1") `
             -Version $Version `
@@ -327,6 +529,42 @@ if ($canUploadToSupabaseStorage) {
     }
 }
 
+$canUploadToGitHub =
+    -not [string]::IsNullOrWhiteSpace($normalizedGitHubRepo) -and
+    -not [string]::IsNullOrWhiteSpace($GitHubToken) -and
+    $manifestGenerated
+
+if ($canUploadToGitHub) {
+    Invoke-Step "Publicacao no GitHub Releases" {
+        $releaseBody = if ([string]::IsNullOrWhiteSpace($ReleaseNotes)) {
+            "Release automatica do Couple Finance $Version."
+        }
+        else {
+            $ReleaseNotes
+        }
+
+        $release = Upsert-GitHubRelease `
+            -Repository $normalizedGitHubRepo `
+            -Tag $GitHubTag `
+            -ReleaseName $GitHubReleaseName `
+            -Token $GitHubToken `
+            -Body $releaseBody
+
+        Remove-GitHubReleaseAsset -Repository $normalizedGitHubRepo -Release $release -AssetName "CoupleFinance-Setup.exe" -Token $GitHubToken
+        Remove-GitHubReleaseAsset -Repository $normalizedGitHubRepo -Release $release -AssetName "CoupleFinance-portable.zip" -Token $GitHubToken
+        Remove-GitHubReleaseAsset -Repository $normalizedGitHubRepo -Release $release -AssetName "update-manifest.json" -Token $GitHubToken
+
+        Upload-GitHubReleaseAsset -Release $release -AssetName "CoupleFinance-Setup.exe" -FilePath $setupExePath -Token $GitHubToken
+        Upload-GitHubReleaseAsset -Release $release -AssetName "CoupleFinance-portable.zip" -FilePath $portableZipPath -Token $GitHubToken
+        Upload-GitHubReleaseAsset -Release $release -AssetName "update-manifest.json" -FilePath $manifestOutputPath -Token $GitHubToken
+
+        $script:gitHubReleaseUrl = $release.html_url
+    }
+}
+elseif (-not [string]::IsNullOrWhiteSpace($normalizedGitHubRepo) -and $manifestGenerated) {
+    Write-Warning "GitHubRepo configurado, mas nenhum token foi informado. A release foi gerada com URLs do GitHub; faca o upload manual de CoupleFinance-Setup.exe, CoupleFinance-portable.zip e update-manifest.json em uma release com a tag $GitHubTag."
+}
+
 Write-Host ""
 Write-Host "Release pronta."
 Write-Host "Versao: $Version"
@@ -339,4 +577,13 @@ if ($manifestGenerated -and (Test-Path -LiteralPath $manifestOutputPath)) {
 
 if (-not [string]::IsNullOrWhiteSpace($ManifestUrl)) {
     Write-Host "Manifesto remoto esperado: $ManifestUrl"
+}
+
+if (-not [string]::IsNullOrWhiteSpace($normalizedGitHubRepo)) {
+    Write-Host "Canal GitHub configurado para: https://github.com/$normalizedGitHubRepo"
+    Write-Host "Tag da release: $GitHubTag"
+}
+
+if (-not [string]::IsNullOrWhiteSpace($gitHubReleaseUrl)) {
+    Write-Host "Release publicada: $gitHubReleaseUrl"
 }
