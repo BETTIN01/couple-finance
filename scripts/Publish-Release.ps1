@@ -13,6 +13,7 @@ param(
     [string]$StorageApiKey = "",
     [string]$StorageBucket = "",
     [string]$StoragePrefix = "couple-finance/stable",
+    [switch]$InstallerOnlyManifest,
     [switch]$AllowOfflineDistribution,
     [switch]$SkipTests
 )
@@ -477,12 +478,15 @@ Invoke-Step "Build do setup proprio" {
 
 if ($hasRemoteUpdateChannel) {
     Invoke-Step "Geracao do manifesto de atualizacao" {
+        $manifestPortableUrl = if ($InstallerOnlyManifest) { "" } else { $portableUrl }
+        $manifestPortablePath = if ($InstallerOnlyManifest) { "" } else { $portableZipPath }
+
         & (Join-Path $PSScriptRoot "New-UpdateManifest.ps1") `
             -Version $Version `
             -InstallerUrl $installerUrl `
             -InstallerPath $setupExePath `
-            -PortableUrl $portableUrl `
-            -PortablePath $portableZipPath `
+            -PortableUrl $manifestPortableUrl `
+            -PortablePath $manifestPortablePath `
             -OutputPath $manifestOutputPath `
             -ReleaseNotes $ReleaseNotes
 
