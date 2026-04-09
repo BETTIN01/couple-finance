@@ -1,10 +1,10 @@
 {
-  "version": "1.1.20",
-  "installerUrl": "https://github.com/BETTIN01/couple-finance/releases/download/v1.1.20/CoupleFinance-Setup.exe",
-  "portableUrl": "https://github.com/BETTIN01/couple-finance/releases/download/v1.1.20/CoupleFinance-portable.zip",
+  "version": "1.1.21",
+  "installerUrl": "https://github.com/BETTIN01/couple-finance/releases/download/v1.1.21/CoupleFinance-Setup.exe",
+  "portableUrl": "https://github.com/BETTIN01/couple-finance/releases/download/v1.1.21/CoupleFinance-portable.zip",
   "portableSha256": "preencha-com-o-sha256-do-pacote-zip",
   "releaseNotes": "Release publicada no GitHub com manifesto remoto para atualizacao automatica.",
-  "publishedAtUtc": "2026-04-08T03:10:00Z",
+  "publishedAtUtc": "2026-04-09T12:00:00Z",
   "sha256": "preencha-com-o-sha256-do-instalador",
   "mandatory": false
 }
