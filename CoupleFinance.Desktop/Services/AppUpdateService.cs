@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Reflection;
@@ -359,35 +359,11 @@ public sealed partial class AppUpdateService : ObservableObject, IDisposable
 
     private void LaunchInstallerAfterExit(string installerPath, string executablePath, string targetDirectory)
     {
-        var scriptPath = EnsureBackgroundUpdateScript();
-        var process = StartBackgroundUpdater(
-            scriptPath,
-            "-NoProfile",
-            "-ExecutionPolicy",
-            "Bypass",
-            "-WindowStyle",
-            "Hidden",
-            "-File",
-            scriptPath,
-            "-ParentProcessId",
-            Environment.ProcessId.ToString(),
-            "-Mode",
-            "installer",
-            "-SourcePath",
-            installerPath,
-            "-ExecutablePath",
-            executablePath,
-            "-TargetDirectory",
-            targetDirectory,
-            "-InstallerDirectory",
-            targetDirectory,
-            "-ExpectedVersion",
-            LatestVersion,
-            $"-RelaunchAfterInstall:${_optionsMonitor.CurrentValue.RelaunchAfterInstall.ToString().ToLowerInvariant()}");
+        var process = StartInstallerUpdater(installerPath, targetDirectory, executablePath);
 
         if (process is null)
         {
-            throw new InvalidOperationException("Não foi possível iniciar o assistente de atualização.");
+            throw new InvalidOperationException("Nao foi possivel iniciar o instalador de atualizacao.");
         }
 
         System.Windows.Application.Current?.Dispatcher.Invoke(() => System.Windows.Application.Current.Shutdown());
@@ -421,7 +397,7 @@ public sealed partial class AppUpdateService : ObservableObject, IDisposable
 
         if (process is null)
         {
-            throw new InvalidOperationException("Não foi possível iniciar o atualizador em segundo plano.");
+            throw new InvalidOperationException("NÃ£o foi possÃ­vel iniciar o atualizador em segundo plano.");
         }
 
         System.Windows.Application.Current?.Dispatcher.Invoke(() => System.Windows.Application.Current.Shutdown());
@@ -583,7 +559,38 @@ catch {
         return Process.Start(startInfo);
     }
 
-    private static bool TryGetWebUri(string source, out Uri uri)
+        private Process? StartInstallerUpdater(string installerPath, string targetDirectory, string executablePath)
+    {
+        var logPath = Path.Combine(GetDownloadFolder(), "update.log");
+        TryResetDownloadTarget(logPath);
+
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = installerPath,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            WindowStyle = ProcessWindowStyle.Hidden,
+            WorkingDirectory = Path.GetDirectoryName(installerPath) ?? AppContext.BaseDirectory
+        };
+
+        startInfo.ArgumentList.Add("/SP-");
+        startInfo.ArgumentList.Add("/VERYSILENT");
+        startInfo.ArgumentList.Add("/SUPPRESSMSGBOXES");
+        startInfo.ArgumentList.Add("/NORESTART");
+        startInfo.ArgumentList.Add($"/DIR={targetDirectory}");
+        startInfo.ArgumentList.Add($"/WAITPID={Environment.ProcessId}");
+        startInfo.ArgumentList.Add($"/EXPECTEDVERSION={LatestVersion}");
+        startInfo.ArgumentList.Add($"/EXECUTABLEPATH={executablePath}");
+        startInfo.ArgumentList.Add($"/LOGPATH={logPath}");
+
+        if (_optionsMonitor.CurrentValue.RelaunchAfterInstall)
+        {
+            startInfo.ArgumentList.Add("/RELAUNCH");
+        }
+
+        return Process.Start(startInfo);
+    }
+private static bool TryGetWebUri(string source, out Uri uri)
     {
         if (!Uri.TryCreate(source, UriKind.Absolute, out var parsedUri) || parsedUri is null)
         {
@@ -830,3 +837,4 @@ catch {
         OnPropertyChanged(nameof(LatestVersionCardHint));
     }
 }
+

@@ -129,7 +129,7 @@ function Update-PortableSettings {
     $config.Updates.CheckOnStartup = $true
     $config.Updates.AutoInstallOnStartup = $true
     $config.Updates.PeriodicCheckIntervalMinutes = 45
-    $config.Updates.PreferBackgroundPackage = $true
+    $config.Updates.PreferBackgroundPackage = $false
     $config.Updates.RelaunchAfterInstall = $true
     $config.Updates.ManifestUrl = $ResolvedManifestUrl
     $config.Updates.StartupDelaySeconds = 3

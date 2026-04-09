@@ -26,6 +26,8 @@ internal static class Program
         }
         catch (Exception ex)
         {
+            WriteLog(options.LogPath, ex.ToString());
+
             if (!options.SuppressMessageBoxes)
             {
                 MessageBox.Show(
@@ -41,8 +43,11 @@ internal static class Program
 
     private static int Install(InstallerOptions options)
     {
+        WaitForParentProcess(options.WaitProcessId, options.LogPath);
+
         var installDirectory = options.InstallDirectory;
         var executablePath = Path.Combine(installDirectory, ExecutableName);
+        WriteLog(options.LogPath, $"Iniciando instalacao em: {installDirectory}");
 
         if (!options.VerySilent && !options.SuppressStartupPrompt)
         {
@@ -70,6 +75,7 @@ internal static class Program
             var sourceRoot = ResolveSourceRoot(extractDirectory);
             Directory.CreateDirectory(installDirectory);
             CopyDirectory(sourceRoot, installDirectory);
+            ValidateInstalledVersion(executablePath, options.ExpectedVersion, options.LogPath);
 
             CreateProgramsShortcut(executablePath, installDirectory);
             if (!options.VerySilent || DesktopShortcutExists())
@@ -88,16 +94,22 @@ internal static class Program
                     MessageBoxIcon.Information);
             }
 
-            if (!options.VerySilent && !options.NoLaunch && File.Exists(executablePath))
+            var shouldLaunchAfterInstall =
+                File.Exists(executablePath) &&
+                (options.RelaunchAfterInstall || (!options.VerySilent && !options.NoLaunch));
+
+            if (shouldLaunchAfterInstall)
             {
                 Process.Start(new ProcessStartInfo
                 {
-                    FileName = executablePath,
+                    FileName = string.IsNullOrWhiteSpace(options.ExecutablePath) ? executablePath : options.ExecutablePath,
                     WorkingDirectory = installDirectory,
                     UseShellExecute = true
                 });
+                WriteLog(options.LogPath, "Aplicacao reaberta apos a instalacao.");
             }
 
+            WriteLog(options.LogPath, "Instalacao concluida com sucesso.");
             return 0;
         }
         finally
@@ -236,12 +248,82 @@ internal static class Program
         }
     }
 
+    private static void WaitForParentProcess(int processId, string logPath)
+    {
+        if (processId <= 0)
+        {
+            return;
+        }
+
+        try
+        {
+            using var process = Process.GetProcessById(processId);
+            WriteLog(logPath, $"Aguardando encerramento do processo pai {processId}.");
+            process.WaitForExit(120000);
+            WriteLog(logPath, $"Processo pai {processId} encerrado.");
+        }
+        catch (ArgumentException)
+        {
+            WriteLog(logPath, $"Processo pai {processId} nao encontrado. Continuando a instalacao.");
+        }
+        catch (Exception ex)
+        {
+            WriteLog(logPath, $"Falha ao aguardar o processo pai {processId}: {ex}");
+        }
+
+        Thread.Sleep(1500);
+    }
+
+    private static void ValidateInstalledVersion(string executablePath, string expectedVersion, string logPath)
+    {
+        if (string.IsNullOrWhiteSpace(expectedVersion) || !File.Exists(executablePath))
+        {
+            return;
+        }
+
+        var version = FileVersionInfo.GetVersionInfo(executablePath).FileVersion ?? string.Empty;
+        WriteLog(logPath, $"Versao instalada detectada: {version}");
+
+        if (!version.StartsWith(expectedVersion, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                $"A instalacao terminou, mas a versao esperada era {expectedVersion} e a versao encontrada foi {version}.");
+        }
+    }
+
+    private static void WriteLog(string logPath, string message)
+    {
+        if (string.IsNullOrWhiteSpace(logPath))
+        {
+            return;
+        }
+
+        try
+        {
+            var directory = Path.GetDirectoryName(logPath);
+            if (!string.IsNullOrWhiteSpace(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-ddTHH:mm:ss}] {message}{Environment.NewLine}");
+        }
+        catch
+        {
+        }
+    }
+
     private sealed record InstallerOptions(
         string InstallDirectory,
         bool VerySilent,
         bool SuppressMessageBoxes,
         bool SuppressStartupPrompt,
-        bool NoLaunch)
+        bool NoLaunch,
+        bool RelaunchAfterInstall,
+        int WaitProcessId,
+        string ExpectedVersion,
+        string ExecutablePath,
+        string LogPath)
     {
         public static InstallerOptions Parse(string[] args)
         {
@@ -250,6 +332,11 @@ internal static class Program
             var suppressMessageBoxes = false;
             var suppressStartupPrompt = false;
             var noLaunch = false;
+            var relaunchAfterInstall = false;
+            var waitProcessId = 0;
+            var expectedVersion = string.Empty;
+            var executablePath = string.Empty;
+            var logPath = string.Empty;
 
             foreach (var arg in args)
             {
@@ -278,9 +365,40 @@ internal static class Program
                     continue;
                 }
 
+                if (arg.Equals("/RELAUNCH", StringComparison.OrdinalIgnoreCase))
+                {
+                    relaunchAfterInstall = true;
+                    continue;
+                }
+
                 if (arg.StartsWith("/DIR=", StringComparison.OrdinalIgnoreCase))
                 {
                     installDirectory = Unquote(arg[5..]);
+                    continue;
+                }
+
+                if (arg.StartsWith("/WAITPID=", StringComparison.OrdinalIgnoreCase) &&
+                    int.TryParse(Unquote(arg[9..]), out var parsedProcessId))
+                {
+                    waitProcessId = parsedProcessId;
+                    continue;
+                }
+
+                if (arg.StartsWith("/EXPECTEDVERSION=", StringComparison.OrdinalIgnoreCase))
+                {
+                    expectedVersion = Unquote(arg[17..]);
+                    continue;
+                }
+
+                if (arg.StartsWith("/EXECUTABLEPATH=", StringComparison.OrdinalIgnoreCase))
+                {
+                    executablePath = Unquote(arg[16..]);
+                    continue;
+                }
+
+                if (arg.StartsWith("/LOGPATH=", StringComparison.OrdinalIgnoreCase))
+                {
+                    logPath = Unquote(arg[9..]);
                 }
             }
 
@@ -288,7 +406,7 @@ internal static class Program
             {
                 suppressMessageBoxes = true;
                 suppressStartupPrompt = true;
-                noLaunch = true;
+                noLaunch = !relaunchAfterInstall;
             }
 
             return new InstallerOptions(
@@ -296,7 +414,12 @@ internal static class Program
                 verySilent,
                 suppressMessageBoxes,
                 suppressStartupPrompt,
-                noLaunch);
+                noLaunch,
+                relaunchAfterInstall,
+                waitProcessId,
+                expectedVersion,
+                executablePath,
+                logPath);
         }
 
         private static string GetDefaultInstallDirectory() =>

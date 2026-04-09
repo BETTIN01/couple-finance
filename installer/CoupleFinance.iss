@@ -1,5 +1,5 @@
 #define MyAppName "Couple Finance"
-#define MyAppVersion "1.1.24"
+#define MyAppVersion "1.1.25"
 #define MyAppPublisher "Couple Finance"
 #define MyAppExeName "CoupleFinance.Desktop.exe"
 
