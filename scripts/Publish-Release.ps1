@@ -3,7 +3,7 @@ param(
     [string]$ReleaseNotes = "",
     [string]$PublicBaseUrl = "",
     [string]$ManifestUrl = "",
-    [string]$GitHubRepo = "",
+    [string]$GitHubRepo = "BETTIN01/couple-finance",
     [string]$GitHubToken = "",
     [string]$GitHubTag = "",
     [string]$GitHubReleaseName = "",

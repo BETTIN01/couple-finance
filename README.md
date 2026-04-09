@@ -114,6 +114,35 @@ Observacao importante:
 
 Se voce passar `-GitHubRepo` sem token, o script ainda gera tudo com as URLs certas do GitHub, mas o upload dos assets precisa ser feito manualmente na release.
 
+### Publicacao automatica para este repositorio
+
+Como este projeto ja esta em `BETTIN01/couple-finance`, o fluxo mais simples daqui para frente e:
+
+1. configurar um token do GitHub no Windows uma unica vez
+2. rodar um script curto de release
+
+Para salvar o token de forma persistente no Windows:
+
+```powershell
+setx GITHUB_TOKEN "SEU_TOKEN_AQUI"
+```
+
+Depois feche e reabra o terminal/Codex.
+
+Com isso configurado, a publicacao automatica da release fica assim:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Publish-GitHubRelease.ps1 `
+  -ReleaseNotes "Resumo curto da versao."
+```
+
+Observacoes:
+
+- se `-Version` ficar vazio, o script usa a versao que ja estiver no `.csproj`
+- o script publica direto em `BETTIN01/couple-finance`
+- ele ja gera manifesto remoto, setup e pacote zip
+- ele usa o fluxo novo com `installer` como caminho principal de auto-update
+
 ### Release local com URLs ja definidas
 
 ```powershell
