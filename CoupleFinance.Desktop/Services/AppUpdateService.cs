@@ -211,7 +211,8 @@ public sealed partial class AppUpdateService : ObservableObject, IDisposable
             if (CanApplyBackgroundPackage() && !string.IsNullOrWhiteSpace(_portableSource))
             {
                 StatusText = $"Baixando pacote da versao {LatestVersion}...";
-                var packagePath = Path.Combine(downloadFolder, BuildPackageFileName(_portableSource, LatestVersion));
+                CleanupOldDownloads(downloadFolder, "CoupleFinance-portable-*.zip");
+                var packagePath = CreateDownloadTargetPath(downloadFolder, "CoupleFinance-portable", ".zip", LatestVersion);
                 await DownloadSourceAsync(_portableSource, packagePath, cancellationToken);
 
                 if (!await ValidateExpectedHashAsync(packagePath, _expectedPortableSha256, cancellationToken))
@@ -235,7 +236,8 @@ public sealed partial class AppUpdateService : ObservableObject, IDisposable
             }
 
             StatusText = $"Baixando instalador silencioso da versao {LatestVersion}...";
-            var installerPath = Path.Combine(downloadFolder, BuildInstallerFileName(_installerSource, LatestVersion));
+            CleanupOldDownloads(downloadFolder, "CoupleFinance-Setup-*.exe");
+            var installerPath = CreateDownloadTargetPath(downloadFolder, "CoupleFinance-Setup", ".exe", LatestVersion);
             await DownloadSourceAsync(_installerSource, installerPath, cancellationToken);
 
             if (!await ValidateExpectedHashAsync(installerPath, _expectedSha256, cancellationToken))
@@ -252,6 +254,12 @@ public sealed partial class AppUpdateService : ObservableObject, IDisposable
             var installedExecutablePath = Path.Combine(installDirectory, Path.GetFileName(currentExecutablePath));
             LaunchInstallerAfterExit(installerPath, installedExecutablePath, installDirectory);
             return true;
+        }
+        catch (IOException ex)
+        {
+            _logger.LogWarning(ex, "Falha ao preparar a atualizacao por arquivo bloqueado.");
+            StatusText = "Nao foi possivel preparar a atualizacao porque um arquivo anterior ainda esta em uso. Feche o app, aguarde alguns segundos e tente novamente.";
+            return false;
         }
         catch (Exception ex)
         {
@@ -439,6 +447,7 @@ try {
 
         Copy-Item -Path (Join-Path $sourceRoot "*") -Destination $TargetDirectory -Recurse -Force
         Remove-Item -LiteralPath $extractDirectory -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath $SourcePath -Force -ErrorAction SilentlyContinue
         Write-Log "Atualizacao por pacote concluida."
     }
     else {
@@ -449,6 +458,7 @@ try {
 
         $installerProcess = Start-Process -FilePath $SourcePath -ArgumentList $installerArguments -PassThru -Wait -WindowStyle Hidden
         Write-Log ("Instalador finalizado com codigo " + $installerProcess.ExitCode)
+        Remove-Item -LiteralPath $SourcePath -Force -ErrorAction SilentlyContinue
         [void](Wait-ForPath -Path $ExecutablePath)
     }
 
@@ -544,6 +554,70 @@ catch {
         }
 
         return $"CoupleFinance-portable-{versionText}.zip";
+    }
+
+    private static string CreateDownloadTargetPath(string folderPath, string baseName, string extension, string versionText)
+    {
+        var normalizedVersion = string.IsNullOrWhiteSpace(versionText)
+            ? DateTime.UtcNow.ToString("yyyyMMddHHmmss")
+            : versionText.Trim().Replace(' ', '-');
+
+        var primaryCandidate = Path.Combine(folderPath, $"{baseName}-{normalizedVersion}{extension}");
+        if (TryResetDownloadTarget(primaryCandidate))
+        {
+            return primaryCandidate;
+        }
+
+        for (var attempt = 1; attempt <= 10; attempt++)
+        {
+            var candidate = Path.Combine(folderPath, $"{baseName}-{normalizedVersion}-{attempt}{extension}");
+            if (TryResetDownloadTarget(candidate))
+            {
+                return candidate;
+            }
+        }
+
+        return Path.Combine(folderPath, $"{baseName}-{normalizedVersion}-{Guid.NewGuid():N}{extension}");
+    }
+
+    private static bool TryResetDownloadTarget(string filePath)
+    {
+        try
+        {
+            var directory = Path.GetDirectoryName(filePath);
+            if (!string.IsNullOrWhiteSpace(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+
+            return true;
+        }
+        catch (IOException)
+        {
+            return false;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return false;
+        }
+    }
+
+    private static void CleanupOldDownloads(string folderPath, string searchPattern)
+    {
+        if (!Directory.Exists(folderPath))
+        {
+            return;
+        }
+
+        foreach (var filePath in Directory.GetFiles(folderPath, searchPattern))
+        {
+            TryResetDownloadTarget(filePath);
+        }
     }
 
     private static string GetCurrentExecutablePath()
