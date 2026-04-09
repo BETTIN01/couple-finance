@@ -1,6 +1,7 @@
 <UserControl x:Class="CoupleFinance.Desktop.Views.Pages.DashboardPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:components="clr-namespace:CoupleFinance.Desktop.Views.Components"
              xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
     <StackPanel>
@@ -17,12 +18,12 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="Receitas do periodo" Style="{StaticResource EyebrowTextStyle}" />
-                        <Border Grid.Column="1" Width="38" Height="38" CornerRadius="12" Background="{StaticResource InsetOverlayBrush}" BorderBrush="{StaticResource PositiveBrush}" BorderThickness="1">
+                        <Border Grid.Column="1" Width="34" Height="34" CornerRadius="11" Background="{StaticResource InsetOverlayBrush}" BorderBrush="{StaticResource PositiveBrush}" BorderThickness="1">
                             <materialDesign:PackIcon Kind="TrendingUp" Foreground="{StaticResource PositiveBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                     </Grid>
-                    <TextBlock Text="{Binding CurrentSnapshot.Dashboard.TotalIncome, StringFormat={}{0:C2}}" Style="{StaticResource MetricValueStyle}" Foreground="{StaticResource PositiveBrush}" Margin="0,12,0,0" />
-                    <TextBlock Text="Tudo o que entrou no recorte atual." Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                    <TextBlock Text="{Binding CurrentSnapshot.Dashboard.TotalIncome, StringFormat={}{0:C2}}" Style="{StaticResource MetricValueStyle}" Foreground="{StaticResource PositiveBrush}" Margin="0,8,0,0" />
+                    <TextBlock Text="Tudo o que entrou no recorte atual." Style="{StaticResource MetricCaptionStyle}" Margin="0,6,0,0" />
                 </StackPanel>
             </Border>
 
@@ -37,12 +38,12 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="Despesas do periodo" Style="{StaticResource EyebrowTextStyle}" />
-                        <Border Grid.Column="1" Width="38" Height="38" CornerRadius="12" Background="{StaticResource InsetOverlayBrush}" BorderBrush="{StaticResource NegativeBrush}" BorderThickness="1">
+                        <Border Grid.Column="1" Width="34" Height="34" CornerRadius="11" Background="{StaticResource InsetOverlayBrush}" BorderBrush="{StaticResource NegativeBrush}" BorderThickness="1">
                             <materialDesign:PackIcon Kind="TrendingDown" Foreground="{StaticResource NegativeBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                     </Grid>
-                    <TextBlock Text="{Binding CurrentSnapshot.Dashboard.TotalExpenses, StringFormat={}{0:C2}}" Style="{StaticResource MetricValueStyle}" Foreground="{StaticResource NegativeBrush}" Margin="0,12,0,0" />
-                    <TextBlock Text="Saidas que exigem atencao agora." Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                    <TextBlock Text="{Binding CurrentSnapshot.Dashboard.TotalExpenses, StringFormat={}{0:C2}}" Style="{StaticResource MetricValueStyle}" Foreground="{StaticResource NegativeBrush}" Margin="0,8,0,0" />
+                    <TextBlock Text="Saidas que exigem atencao agora." Style="{StaticResource MetricCaptionStyle}" Margin="0,6,0,0" />
                 </StackPanel>
             </Border>
 
@@ -57,12 +58,12 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="Saldo + investimentos" Style="{StaticResource EyebrowTextStyle}" />
-                        <Border Grid.Column="1" Width="38" Height="38" CornerRadius="12" Background="{StaticResource InsetOverlayBrush}" BorderBrush="{StaticResource WarningBrush}" BorderThickness="1">
+                        <Border Grid.Column="1" Width="34" Height="34" CornerRadius="11" Background="{StaticResource InsetOverlayBrush}" BorderBrush="{StaticResource WarningBrush}" BorderThickness="1">
                             <materialDesign:PackIcon Kind="BankOutline" Foreground="{StaticResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                     </Grid>
-                    <TextBlock Text="{Binding CurrentSnapshot.Dashboard.CurrentBalance, StringFormat={}{0:C2}}" Style="{StaticResource MetricValueStyle}" Foreground="{StaticResource WarningBrush}" Margin="0,12,0,0" />
-                    <TextBlock Text="Visao patrimonial mais proxima da realidade do casal." Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                    <TextBlock Text="{Binding CurrentSnapshot.Dashboard.CurrentBalance, StringFormat={}{0:C2}}" Style="{StaticResource MetricValueStyle}" Foreground="{StaticResource WarningBrush}" Margin="0,8,0,0" />
+                    <TextBlock Text="Visao patrimonial mais proxima da realidade do casal." Style="{StaticResource MetricCaptionStyle}" Margin="0,6,0,0" />
                 </StackPanel>
             </Border>
 
@@ -77,12 +78,12 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="Faturas em aberto" Style="{StaticResource EyebrowTextStyle}" />
-                        <Border Grid.Column="1" Width="38" Height="38" CornerRadius="12" Background="{StaticResource InsetOverlayBrush}" BorderBrush="{StaticResource InfoBrush}" BorderThickness="1">
+                        <Border Grid.Column="1" Width="34" Height="34" CornerRadius="11" Background="{StaticResource InsetOverlayBrush}" BorderBrush="{StaticResource InfoBrush}" BorderThickness="1">
                             <materialDesign:PackIcon Kind="CreditCardOutline" Foreground="{StaticResource InfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                     </Grid>
-                    <TextBlock Text="{Binding TotalOpenInvoices, StringFormat={}{0:C2}}" Style="{StaticResource MetricValueStyle}" Foreground="{StaticResource InfoBrush}" Margin="0,12,0,0" />
-                    <TextBlock Text="{Binding CardUsagePercent, StringFormat=Uso do limite total: {0:N1}%}" Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                    <TextBlock Text="{Binding TotalOpenInvoices, StringFormat={}{0:C2}}" Style="{StaticResource MetricValueStyle}" Foreground="{StaticResource InfoBrush}" Margin="0,8,0,0" />
+                    <TextBlock Text="{Binding CardUsagePercent, StringFormat=Uso do limite total: {0:N1}%}" Style="{StaticResource MetricCaptionStyle}" Margin="0,6,0,0" />
                 </StackPanel>
             </Border>
         </WrapPanel>
@@ -98,6 +99,7 @@
                     <Border Width="92" Height="6" Background="{StaticResource AccentBrush}" CornerRadius="3" HorizontalAlignment="Left" />
                     <TextBlock Text="Resumo do casal" Style="{StaticResource CardTitleStyle}" Margin="0,16,0,0" />
                     <TextBlock Text="Quem puxou a renda e onde o orcamento esta concentrado." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+                    <components:PeriodOwnershipFilterStrip Margin="0,16,0,0" />
                     <WrapPanel Margin="0,14,0,0">
                         <Border Style="{StaticResource ToolbarChipStyle}" Background="{StaticResource PositiveSoftBrush}" BorderBrush="{StaticResource PositiveBrush}"><TextBlock Text="Seu lado" FontWeight="SemiBold" /></Border>
                         <Border Style="{StaticResource ToolbarChipStyle}" Background="{StaticResource InfoSoftBrush}" BorderBrush="{StaticResource InfoBrush}"><TextBlock Text="Parceiro" FontWeight="SemiBold" /></Border>

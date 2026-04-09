@@ -11,38 +11,80 @@
             <Border Style="{StaticResource GlassCardStyle}" Margin="0,0,18,18">
                 <StackPanel>
                     <TextBlock Text="Conta e relacionamento" Style="{StaticResource CardTitleStyle}" />
-                    <TextBlock Text="Tudo o que identifica vocês dentro do lar financeiro compartilhado." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+                    <TextBlock Text="Centralize aqui os dados do casal, o codigo de convite e o contexto do lar financeiro compartilhado."
+                               Style="{StaticResource CardSubtitleStyle}"
+                               Margin="0,8,0,0"
+                               TextWrapping="Wrap" />
 
-                    <Border Style="{StaticResource SubtlePanelStyle}" Margin="0,20,0,0">
-                        <StackPanel>
-                            <TextBlock Text="{Binding CurrentSnapshot.CurrentUser.DisplayName}" FontSize="20" FontWeight="SemiBold" />
-                            <TextBlock Text="{Binding CurrentSnapshot.CurrentUser.Email}" Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
-                            <TextBlock Text="{Binding CurrentSnapshot.Household.Name, StringFormat=Lar financeiro: {0}}" Style="{StaticResource MetricCaptionStyle}" Margin="0,12,0,0" />
-                            <TextBlock Text="{Binding CurrentSnapshot.InviteCode, StringFormat=Código do casal: {0}}" Style="{StaticResource MetricCaptionStyle}" Margin="0,6,0,0" />
-                            <TextBlock Text="{Binding HouseholdSubtitle}" Style="{StaticResource MetricCaptionStyle}" Margin="0,10,0,0" TextWrapping="Wrap" />
-                        </StackPanel>
-                    </Border>
+                    <WrapPanel Margin="0,20,0,0" ItemWidth="270">
+                        <Border Style="{StaticResource SubtlePanelStyle}" Width="270" Margin="0,0,12,12">
+                            <StackPanel>
+                                <TextBlock Text="Sua conta" Style="{StaticResource EyebrowTextStyle}" />
+                                <TextBlock Text="{Binding CurrentSnapshot.CurrentUser.DisplayName}"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Margin="0,8,0,0" />
+                                <TextBlock Text="{Binding CurrentSnapshot.CurrentUser.Email}"
+                                           Style="{StaticResource CardSubtitleStyle}"
+                                           Margin="0,8,0,0"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource SubtlePanelStyle}" Width="270" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="Lar compartilhado" Style="{StaticResource EyebrowTextStyle}" />
+                                <TextBlock Text="{Binding CurrentSnapshot.Household.Name}"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Margin="0,8,0,0" />
+                                <TextBlock Text="{Binding CurrentSnapshot.InviteCode, StringFormat=Codigo do casal: {0}}"
+                                           Style="{StaticResource MetricCaptionStyle}"
+                                           Margin="0,10,0,0" />
+                                <TextBlock Text="{Binding CurrentSnapshot.Sync.StatusText, StringFormat=Sincronizacao: {0}}"
+                                           Style="{StaticResource MetricCaptionStyle}"
+                                           Margin="0,6,0,0"
+                                           TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding HouseholdSubtitle}"
+                                           Style="{StaticResource CardSubtitleStyle}"
+                                           Margin="0,10,0,0"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+                    </WrapPanel>
                 </StackPanel>
             </Border>
 
             <Border Style="{StaticResource GlassCardStyle}" Margin="0,0,18,0">
                 <StackPanel>
-                    <TextBlock Text="Experiência do produto" Style="{StaticResource CardTitleStyle}" />
-                    <TextBlock Text="Como o Couple Finance está cuidando dos seus dados no dia a dia." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+                    <TextBlock Text="Experiencia do produto" Style="{StaticResource CardTitleStyle}" />
+                    <TextBlock Text="Como o Couple Finance cuida dos seus dados no dia a dia."
+                               Style="{StaticResource CardSubtitleStyle}"
+                               Margin="0,8,0,0" />
 
                     <Border Style="{StaticResource SubtlePanelStyle}" Margin="0,20,0,0">
                         <StackPanel>
-                            <TextBlock Text="Sincronização" FontWeight="SemiBold" />
-                            <TextBlock Text="{Binding CurrentSnapshot.Sync.StatusText}" Style="{StaticResource CardSubtitleStyle}" Margin="0,6,0,0" />
-                            <TextBlock Text="{Binding CurrentSnapshot.Sync.LastSyncAtUtc, StringFormat=Última atualização: {0:dd/MM/yyyy HH:mm}}" Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" />
+                            <TextBlock Text="Sincronizacao" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding CurrentSnapshot.Sync.StatusText}"
+                                       Style="{StaticResource CardSubtitleStyle}"
+                                       Margin="0,6,0,0" />
+                            <TextBlock Text="{Binding CurrentSnapshot.Sync.LastSyncAtUtc, StringFormat=Ultima atualizacao: {0:dd/MM/yyyy HH:mm}}"
+                                       Style="{StaticResource MetricCaptionStyle}"
+                                       Margin="0,8,0,0" />
                         </StackPanel>
                     </Border>
 
                     <Border Style="{StaticResource SubtlePanelStyle}" Margin="0,14,0,0">
                         <StackPanel>
-                            <TextBlock Text="Atualizações" FontWeight="SemiBold" />
-                            <TextBlock Text="{Binding Updater.StatusText}" Style="{StaticResource CardSubtitleStyle}" Margin="0,6,0,0" TextWrapping="Wrap" />
-                            <TextBlock Text="O app verifica novas versões em segundo plano para reduzir manutenção manual." Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" TextWrapping="Wrap" />
+                            <TextBlock Text="Atualizacoes" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding Updater.StatusText}"
+                                       Style="{StaticResource CardSubtitleStyle}"
+                                       Margin="0,6,0,0"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Text="O app verifica e baixa novas versoes em segundo plano. Quando a atualizacao estiver pronta, ele pergunta se voce quer reiniciar para aplicar."
+                                       Style="{StaticResource MetricCaptionStyle}"
+                                       Margin="0,8,0,0"
+                                       TextWrapping="Wrap" />
                         </StackPanel>
                     </Border>
                 </StackPanel>
@@ -53,30 +95,48 @@
             <Border Style="{StaticResource GlassCardStyle}">
                 <StackPanel>
                     <TextBlock Text="Resumo do ambiente" Style="{StaticResource CardTitleStyle}" />
-                    <TextBlock Text="Informações úteis para saber se tudo está saudável sem expor detalhes técnicos desnecessários." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+                    <TextBlock Text="Informacoes uteis para saber se tudo esta saudavel sem expor detalhes tecnicos desnecessarios."
+                               Style="{StaticResource CardSubtitleStyle}"
+                               Margin="0,8,0,0" />
 
                     <WrapPanel Margin="0,20,0,0" ItemWidth="220">
                         <Border Style="{StaticResource SubtlePanelStyle}" Width="220" Margin="0,0,12,12">
                             <StackPanel>
-                                <TextBlock Text="Versão atual" Style="{StaticResource EyebrowTextStyle}" />
-                                <TextBlock Text="{Binding Updater.CurrentVersion}" FontSize="22" FontWeight="SemiBold" Margin="0,8,0,0" />
+                                <TextBlock Text="Versao atual" Style="{StaticResource EyebrowTextStyle}" />
+                                <TextBlock Text="{Binding Updater.CurrentVersion}"
+                                           FontSize="22"
+                                           FontWeight="SemiBold"
+                                           Margin="0,8,0,0" />
                             </StackPanel>
                         </Border>
 
                         <Border Style="{StaticResource SubtlePanelStyle}" Width="220" Margin="0,0,0,12">
                             <StackPanel>
                                 <TextBlock Text="{Binding Updater.LatestVersionCardTitle}" Style="{StaticResource EyebrowTextStyle}" />
-                                <TextBlock Text="{Binding Updater.LatestVersionCardValue}" FontSize="22" FontWeight="SemiBold" Margin="0,8,0,0" TextWrapping="Wrap" />
-                                <TextBlock Text="{Binding Updater.LatestVersionCardHint}" Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding Updater.LatestVersionCardValue}"
+                                           FontSize="22"
+                                           FontWeight="SemiBold"
+                                           Margin="0,8,0,0"
+                                           TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding Updater.LatestVersionCardHint}"
+                                           Style="{StaticResource MetricCaptionStyle}"
+                                           Margin="0,8,0,0"
+                                           TextWrapping="Wrap" />
                             </StackPanel>
                         </Border>
                     </WrapPanel>
 
                     <Border Style="{StaticResource SubtlePanelStyle}" Margin="0,6,0,0">
                         <StackPanel>
-                            <TextBlock Text="O que está automatizado" FontWeight="SemiBold" />
-                            <TextBlock Text="A sincronização acontece automaticamente ao abrir o app, após mudanças locais e em ciclos periódicos quando a internet está disponível." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" TextWrapping="Wrap" />
-                            <TextBlock Text="As atualizações também são verificadas em segundo plano para manter a experiência fluida." Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" TextWrapping="Wrap" />
+                            <TextBlock Text="O que esta automatizado" FontWeight="SemiBold" />
+                            <TextBlock Text="A sincronizacao acontece automaticamente ao abrir o app, apos mudancas locais e em ciclos periodicos quando a internet esta disponivel."
+                                       Style="{StaticResource CardSubtitleStyle}"
+                                       Margin="0,8,0,0"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Text="As atualizacoes sao verificadas enquanto o app esta aberto, sem depender de reiniciar so para procurar uma versao nova."
+                                       Style="{StaticResource MetricCaptionStyle}"
+                                       Margin="0,8,0,0"
+                                       TextWrapping="Wrap" />
                         </StackPanel>
                     </Border>
                 </StackPanel>
@@ -85,7 +145,9 @@
             <Border Style="{StaticResource GlassCardStyle}">
                 <StackPanel>
                     <TextBlock Text="Paleta vintage aplicada" Style="{StaticResource CardTitleStyle}" />
-                    <TextBlock Text="A identidade do app agora usa esta direção cromática como base, adaptada para o modo escuro com contraste preservado." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+                    <TextBlock Text="A identidade do app usa esta direcao cromatica como base, adaptada para o modo escuro com contraste preservado."
+                               Style="{StaticResource CardSubtitleStyle}"
+                               Margin="0,8,0,0" />
 
                     <WrapPanel Margin="0,20,0,0">
                         <StackPanel Margin="0,0,18,12">
@@ -110,33 +172,47 @@
                         </StackPanel>
                     </WrapPanel>
 
-                    <TextBlock Text="Dourado suave para ações principais, azul petróleo para positivos, coral para alertas e blush para estados neutros e complementares." Style="{StaticResource MetricCaptionStyle}" Margin="0,8,0,0" TextWrapping="Wrap" />
+                    <TextBlock Text="Dourado suave para acoes principais, azul petroleo para positivos, coral para alertas e blush para estados neutros e complementares."
+                               Style="{StaticResource MetricCaptionStyle}"
+                               Margin="0,8,0,0"
+                               TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
 
             <Border Style="{StaticResource GlassCardStyle}">
                 <StackPanel>
-                    <TextBlock Text="Orientação rápida" Style="{StaticResource CardTitleStyle}" />
-                    <TextBlock Text="Três hábitos que deixam o produto muito mais útil no uso real do casal." Style="{StaticResource CardSubtitleStyle}" Margin="0,8,0,0" />
+                    <TextBlock Text="Orientacao rapida" Style="{StaticResource CardTitleStyle}" />
+                    <TextBlock Text="Tres habitos que deixam o produto muito mais util no uso real do casal."
+                               Style="{StaticResource CardSubtitleStyle}"
+                               Margin="0,8,0,0" />
 
                     <Border Style="{StaticResource SubtlePanelStyle}" Margin="0,20,0,0">
                         <StackPanel>
                             <TextBlock Text="1. Definam o escopo certo" FontWeight="SemiBold" />
-                            <TextBlock Text="Use individual quando o lançamento pertence a uma pessoa e conjunto quando ele afeta os dois." Style="{StaticResource MetricCaptionStyle}" Margin="0,6,0,0" TextWrapping="Wrap" />
+                            <TextBlock Text="Use individual quando o lancamento pertence a uma pessoa e conjunto quando ele afeta os dois."
+                                       Style="{StaticResource MetricCaptionStyle}"
+                                       Margin="0,6,0,0"
+                                       TextWrapping="Wrap" />
                         </StackPanel>
                     </Border>
 
                     <Border Style="{StaticResource SubtlePanelStyle}" Margin="0,12,0,0">
                         <StackPanel>
                             <TextBlock Text="2. Padronizem categorias" FontWeight="SemiBold" />
-                            <TextBlock Text="Categorias bem definidas aumentam a qualidade do dashboard e dos insights." Style="{StaticResource MetricCaptionStyle}" Margin="0,6,0,0" TextWrapping="Wrap" />
+                            <TextBlock Text="Categorias bem definidas aumentam a qualidade do dashboard e dos insights."
+                                       Style="{StaticResource MetricCaptionStyle}"
+                                       Margin="0,6,0,0"
+                                       TextWrapping="Wrap" />
                         </StackPanel>
                     </Border>
 
                     <Border Style="{StaticResource SubtlePanelStyle}" Margin="0,12,0,0">
                         <StackPanel>
                             <TextBlock Text="3. Atualizem metas e investimentos" FontWeight="SemiBold" />
-                            <TextBlock Text="Quando os valores atuais estão em dia, o app passa a recomendar melhor o próximo passo." Style="{StaticResource MetricCaptionStyle}" Margin="0,6,0,0" TextWrapping="Wrap" />
+                            <TextBlock Text="Quando os valores atuais estao em dia, o app passa a recomendar melhor o proximo passo."
+                                       Style="{StaticResource MetricCaptionStyle}"
+                                       Margin="0,6,0,0"
+                                       TextWrapping="Wrap" />
                         </StackPanel>
                     </Border>
                 </StackPanel>

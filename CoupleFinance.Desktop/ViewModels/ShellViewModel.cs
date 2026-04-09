@@ -471,7 +471,20 @@ public partial class ShellViewModel : ObservableObject, IDisposable
             return;
         }
 
-        await InstallUpdateCoreAsync();
+        var prepared = await Updater.PrepareUpdateAsync();
+        StatusMessage = Updater.StatusText;
+
+        if (!prepared)
+        {
+            MessageBox.Show(
+                Updater.StatusText,
+                "Atualizacao",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
+        await PromptToApplyPreparedUpdateAsync();
     }
 
     private Task InstallUpdateAsync() => InstallUpdateCoreAsync();
@@ -488,7 +501,23 @@ public partial class ShellViewModel : ObservableObject, IDisposable
             return;
         }
 
-        var started = await Updater.DownloadAndInstallAsync();
+        if (!Updater.IsUpdateReadyToApply)
+        {
+            var prepared = await Updater.PrepareUpdateAsync();
+            StatusMessage = Updater.StatusText;
+
+            if (!prepared)
+            {
+                MessageBox.Show(
+                    Updater.StatusText,
+                    "Atualizacao",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+        }
+
+        var started = await PromptToApplyPreparedUpdateAsync();
         StatusMessage = Updater.StatusText;
 
         if (!started)
@@ -499,6 +528,28 @@ public partial class ShellViewModel : ObservableObject, IDisposable
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);
         }
+    }
+
+    private async Task<bool> PromptToApplyPreparedUpdateAsync()
+    {
+        if (!Updater.IsUpdateReadyToApply)
+        {
+            return false;
+        }
+
+        var result = MessageBox.Show(
+            $"A atualizacao {Updater.PreparedVersion} ja foi baixada. Podemos reiniciar o aplicativo agora para aplicar a nova versao?",
+            "Atualizacao pronta",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+
+        if (result != MessageBoxResult.Yes)
+        {
+            StatusMessage = $"Atualizacao {Updater.PreparedVersion} baixada. Podemos reiniciar o app quando voce quiser aplicar.";
+            return true;
+        }
+
+        return await Updater.ApplyPreparedUpdateAsync();
     }
 
     private async Task SignOutAsync()

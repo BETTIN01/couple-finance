@@ -128,7 +128,7 @@ function Update-PortableSettings {
     $config.Updates.Enabled = -not [string]::IsNullOrWhiteSpace($ResolvedManifestUrl)
     $config.Updates.CheckOnStartup = $true
     $config.Updates.AutoInstallOnStartup = $true
-    $config.Updates.PeriodicCheckIntervalMinutes = 45
+    $config.Updates.PeriodicCheckIntervalMinutes = 15
     $config.Updates.PreferBackgroundPackage = $false
     $config.Updates.RelaunchAfterInstall = $true
     $config.Updates.ManifestUrl = $ResolvedManifestUrl

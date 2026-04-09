@@ -14,6 +14,7 @@ public partial class MainViewModel(
 {
     private readonly DispatcherTimer _automaticUpdateTimer = new();
     private bool _isRunningAutomaticUpdateCycle;
+    private string _lastPromptedPreparedVersion = string.Empty;
 
     [ObservableProperty] private object? currentViewModel;
 
@@ -79,7 +80,13 @@ public partial class MainViewModel(
                 return;
             }
 
-            await appUpdateService.DownloadAndInstallAsync();
+            var prepared = await appUpdateService.PrepareUpdateAsync(background: true);
+            if (!prepared)
+            {
+                return;
+            }
+
+            ShowPreparedUpdatePromptIfNeeded();
         }
         finally
         {
@@ -127,6 +134,27 @@ public partial class MainViewModel(
     private async Task HandleSignedOutAsync()
     {
         await authService.SignOutAsync();
-        ShowAuth("Sessão encerrada.");
+        ShowAuth("Sessao encerrada.");
+    }
+
+    private void ShowPreparedUpdatePromptIfNeeded()
+    {
+        if (!appUpdateService.IsUpdateReadyToApply || string.IsNullOrWhiteSpace(appUpdateService.PreparedVersion))
+        {
+            return;
+        }
+
+        if (string.Equals(_lastPromptedPreparedVersion, appUpdateService.PreparedVersion, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        if (CurrentViewModel is not ShellViewModel shellViewModel)
+        {
+            return;
+        }
+
+        _lastPromptedPreparedVersion = appUpdateService.PreparedVersion;
+        shellViewModel.ShowPreparedUpdatePrompt();
     }
 }

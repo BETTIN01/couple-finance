@@ -28,6 +28,8 @@ public sealed partial class AppUpdateService : ObservableObject, IDisposable
     private string? _expectedSha256;
     private string? _portableSource;
     private string? _expectedPortableSha256;
+    private string? _preparedInstallerPath;
+    private string? _preparedPortablePath;
 
     [ObservableProperty] private bool isEnabled;
     [ObservableProperty] private bool isConfigured;
@@ -35,8 +37,10 @@ public sealed partial class AppUpdateService : ObservableObject, IDisposable
     [ObservableProperty] private bool isDownloading;
     [ObservableProperty] private bool isInstalling;
     [ObservableProperty] private bool isUpdateAvailable;
+    [ObservableProperty] private bool isUpdateReadyToApply;
     [ObservableProperty] private string currentVersion = GetCurrentVersionText();
     [ObservableProperty] private string latestVersion = "Nao verificado";
+    [ObservableProperty] private string preparedVersion = string.Empty;
     [ObservableProperty] private string statusText = "Atualizacoes automaticas desativadas.";
     [ObservableProperty] private string releaseNotes = string.Empty;
     [ObservableProperty] private string manifestUrl = string.Empty;
@@ -77,6 +81,7 @@ public sealed partial class AppUpdateService : ObservableObject, IDisposable
     partial void OnIsDownloadingChanged(bool value) => OnPropertyChanged(nameof(CanInstallUpdate));
     partial void OnIsInstallingChanged(bool value) => OnPropertyChanged(nameof(CanInstallUpdate));
     partial void OnIsUpdateAvailableChanged(bool value) => OnPropertyChanged(nameof(CanInstallUpdate));
+    partial void OnIsUpdateReadyToApplyChanged(bool value) => OnPropertyChanged(nameof(CanInstallUpdate));
     partial void OnIsEnabledChanged(bool value) => NotifySummaryCardChanged();
     partial void OnIsConfiguredChanged(bool value) => NotifySummaryCardChanged();
     partial void OnLatestVersionChanged(string value) => NotifySummaryCardChanged();
@@ -154,6 +159,7 @@ public sealed partial class AppUpdateService : ObservableObject, IDisposable
 
             if (newestVersion <= currentVersion)
             {
+                ResetPreparedUpdate();
                 ResetAvailableUpdate();
                 StatusText = $"Voce ja esta na versao mais recente ({CurrentVersion}).";
                 return false;
@@ -170,9 +176,11 @@ public sealed partial class AppUpdateService : ObservableObject, IDisposable
             }
 
             IsUpdateAvailable = true;
-            StatusText = CanApplyBackgroundPackage()
-                ? $"Nova versao {LatestVersion} pronta para atualizar em segundo plano."
-                : $"Nova versao {LatestVersion} pronta para instalar automaticamente.";
+            StatusText = IsPreparedForCurrentLatestVersion()
+                ? $"Atualizacao {LatestVersion} baixada. Podemos reiniciar o app para aplicar."
+                : CanApplyBackgroundPackage()
+                    ? $"Nova versao {LatestVersion} pronta para baixar em segundo plano."
+                    : $"Nova versao {LatestVersion} pronta para baixar e instalar.";
             return true;
         }
         catch (Exception ex)
@@ -190,14 +198,20 @@ public sealed partial class AppUpdateService : ObservableObject, IDisposable
         }
     }
 
-    public async Task<bool> DownloadAndInstallAsync(CancellationToken cancellationToken = default)
+    public async Task<bool> PrepareUpdateAsync(bool background = false, CancellationToken cancellationToken = default)
     {
         await _gate.WaitAsync(cancellationToken);
         try
         {
-            if (!CanInstallUpdate)
+            if (IsPreparedForCurrentLatestVersion())
             {
-                StatusText = "Nenhuma atualizacao disponivel para instalar.";
+                StatusText = $"Atualizacao {LatestVersion} baixada. Podemos reiniciar o app para aplicar.";
+                return true;
+            }
+
+            if (!IsUpdateAvailable || IsChecking || IsDownloading || IsInstalling)
+            {
+                StatusText = "Nenhuma atualizacao disponivel para baixar agora.";
                 return false;
             }
 
@@ -206,7 +220,7 @@ public sealed partial class AppUpdateService : ObservableObject, IDisposable
 
             var downloadFolder = GetDownloadFolder();
             Directory.CreateDirectory(downloadFolder);
-            var currentExecutablePath = GetCurrentExecutablePath();
+            ResetPreparedUpdate();
 
             if (CanApplyBackgroundPackage() && !string.IsNullOrWhiteSpace(_portableSource))
             {
@@ -223,9 +237,10 @@ public sealed partial class AppUpdateService : ObservableObject, IDisposable
                 }
 
                 IsDownloading = false;
-                IsInstalling = true;
-                StatusText = "Aplicando atualizacao em segundo plano...";
-                LaunchPortableUpdateAfterExit(packagePath, currentExecutablePath, AppContext.BaseDirectory);
+                _preparedPortablePath = packagePath;
+                PreparedVersion = LatestVersion;
+                IsUpdateReadyToApply = true;
+                StatusText = $"Atualizacao {LatestVersion} baixada. Podemos reiniciar o app para aplicar.";
                 return true;
             }
 
@@ -248,11 +263,10 @@ public sealed partial class AppUpdateService : ObservableObject, IDisposable
             }
 
             IsDownloading = false;
-            IsInstalling = true;
-            StatusText = "Instalando atualizacao em segundo plano...";
-            var installDirectory = GetPreferredInstallDirectory();
-            var installedExecutablePath = Path.Combine(installDirectory, Path.GetFileName(currentExecutablePath));
-            LaunchInstallerAfterExit(installerPath, installedExecutablePath, installDirectory);
+            _preparedInstallerPath = installerPath;
+            PreparedVersion = LatestVersion;
+            IsUpdateReadyToApply = true;
+            StatusText = $"Atualizacao {LatestVersion} baixada. Podemos reiniciar o app para aplicar.";
             return true;
         }
         catch (IOException ex)
@@ -274,6 +288,58 @@ public sealed partial class AppUpdateService : ObservableObject, IDisposable
                 IsDownloading = false;
             }
 
+            _gate.Release();
+        }
+    }
+
+    public async Task<bool> DownloadAndInstallAsync(CancellationToken cancellationToken = default)
+    {
+        var prepared = await PrepareUpdateAsync(cancellationToken: cancellationToken);
+        if (!prepared)
+        {
+            return false;
+        }
+
+        return await ApplyPreparedUpdateAsync(cancellationToken);
+    }
+
+    public async Task<bool> ApplyPreparedUpdateAsync(CancellationToken cancellationToken = default)
+    {
+        await _gate.WaitAsync(cancellationToken);
+        try
+        {
+            if (!IsUpdateReadyToApply)
+            {
+                StatusText = "A atualizacao ainda nao foi baixada.";
+                return false;
+            }
+
+            var currentExecutablePath = GetCurrentExecutablePath();
+
+            if (!string.IsNullOrWhiteSpace(_preparedPortablePath) && CanApplyBackgroundPackage())
+            {
+                IsInstalling = true;
+                StatusText = "Reiniciando para aplicar atualizacao...";
+                LaunchPortableUpdateAfterExit(_preparedPortablePath, currentExecutablePath, AppContext.BaseDirectory);
+                return true;
+            }
+
+            if (!string.IsNullOrWhiteSpace(_preparedInstallerPath))
+            {
+                IsInstalling = true;
+                StatusText = "Reiniciando para aplicar atualizacao...";
+                var installDirectory = GetPreferredInstallDirectory();
+                var installedExecutablePath = Path.Combine(installDirectory, Path.GetFileName(currentExecutablePath));
+                LaunchInstallerAfterExit(_preparedInstallerPath, installedExecutablePath, installDirectory);
+                return true;
+            }
+
+            StatusText = "A atualizacao baixada nao esta mais disponivel para aplicacao.";
+            ResetPreparedUpdate();
+            return false;
+        }
+        finally
+        {
             _gate.Release();
         }
     }
@@ -319,6 +385,19 @@ public sealed partial class AppUpdateService : ObservableObject, IDisposable
         _expectedPortableSha256 = null;
         IsUpdateAvailable = false;
     }
+
+    private void ResetPreparedUpdate()
+    {
+        _preparedInstallerPath = null;
+        _preparedPortablePath = null;
+        PreparedVersion = string.Empty;
+        IsUpdateReadyToApply = false;
+    }
+
+    private bool IsPreparedForCurrentLatestVersion() =>
+        IsUpdateReadyToApply &&
+        !string.IsNullOrWhiteSpace(PreparedVersion) &&
+        string.Equals(PreparedVersion, LatestVersion, StringComparison.OrdinalIgnoreCase);
 
     private string GetDownloadFolder() => Path.Combine(
         _sessionStore.GetAppFolder(),

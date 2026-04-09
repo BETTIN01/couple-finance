@@ -1,6 +1,7 @@
 <UserControl x:Class="CoupleFinance.Desktop.Views.Pages.TransactionsPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:components="clr-namespace:CoupleFinance.Desktop.Views.Components"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
     <UserControl.Resources>
         <DataTemplate x:Key="EnumComboTemplate">
@@ -140,6 +141,8 @@
                     <TextBox Grid.Column="1" Width="260" Margin="0,0,12,0" Text="{Binding TransactionSearchText, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Buscar lançamento" />
                     <ComboBox Grid.Column="2" Width="160" ItemsSource="{Binding TransactionTypeFilters}" SelectedItem="{Binding SelectedTransactionTypeFilter}" />
                 </Grid>
+
+                <components:PeriodOwnershipFilterStrip Margin="0,18,0,0" />
 
                 <ItemsControl ItemsSource="{Binding FilteredTransactions}" Margin="0,20,0,0" Visibility="{Binding FilteredTransactions.Count, Converter={StaticResource CountToVisibilityConverter}}">
                     <ItemsControl.ItemTemplate>

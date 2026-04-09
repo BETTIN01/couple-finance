@@ -58,7 +58,7 @@
 
     <Style x:Key="MetricValueStyle" TargetType="{x:Type TextBlock}">
         <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
-        <Setter Property="FontSize" Value="34" />
+        <Setter Property="FontSize" Value="30" />
         <Setter Property="FontWeight" Value="ExtraBold" />
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
     </Style>
@@ -80,8 +80,8 @@
         <Setter Property="Background" Value="{StaticResource CardBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="CornerRadius" Value="24" />
-        <Setter Property="Padding" Value="22" />
+        <Setter Property="CornerRadius" Value="22" />
+        <Setter Property="Padding" Value="18" />
         <Setter Property="Effect">
             <Setter.Value>
                 <DropShadowEffect BlurRadius="28" ShadowDepth="0" Opacity="0.36" Color="#AA080B10" />
@@ -90,13 +90,13 @@
     </Style>
 
     <Style x:Key="GlassCardStyle" TargetType="{x:Type Border}" BasedOn="{StaticResource MetricCardStyle}">
-        <Setter Property="Margin" Value="0,0,0,18" />
+        <Setter Property="Margin" Value="0,0,0,14" />
     </Style>
 
     <Style x:Key="HeroCardStyle" TargetType="{x:Type Border}" BasedOn="{StaticResource MetricCardStyle}">
         <Setter Property="Background" Value="{StaticResource CardBrushStrong}" />
-        <Setter Property="CornerRadius" Value="28" />
-        <Setter Property="Padding" Value="24" />
+        <Setter Property="CornerRadius" Value="24" />
+        <Setter Property="Padding" Value="20" />
         <Setter Property="Effect">
             <Setter.Value>
                 <DropShadowEffect BlurRadius="36" ShadowDepth="0" Opacity="0.42" Color="#B0080B10" />
@@ -130,55 +130,55 @@
     </Style>
 
     <Style x:Key="IncomeSummaryMetricCardStyle" TargetType="{x:Type Border}" BasedOn="{StaticResource IncomeMetricCardStyle}">
-        <Setter Property="Width" Value="282" />
-        <Setter Property="MinWidth" Value="252" />
-        <Setter Property="Height" Value="164" />
-        <Setter Property="Margin" Value="0,0,18,18" />
+        <Setter Property="Width" Value="260" />
+        <Setter Property="MinWidth" Value="230" />
+        <Setter Property="Height" Value="146" />
+        <Setter Property="Margin" Value="0,0,14,14" />
     </Style>
 
     <Style x:Key="ExpenseSummaryMetricCardStyle" TargetType="{x:Type Border}" BasedOn="{StaticResource ExpenseMetricCardStyle}">
-        <Setter Property="Width" Value="282" />
-        <Setter Property="MinWidth" Value="252" />
-        <Setter Property="Height" Value="164" />
-        <Setter Property="Margin" Value="0,0,18,18" />
+        <Setter Property="Width" Value="260" />
+        <Setter Property="MinWidth" Value="230" />
+        <Setter Property="Height" Value="146" />
+        <Setter Property="Margin" Value="0,0,14,14" />
     </Style>
 
     <Style x:Key="BalanceSummaryMetricCardStyle" TargetType="{x:Type Border}" BasedOn="{StaticResource BalanceMetricCardStyle}">
-        <Setter Property="Width" Value="282" />
-        <Setter Property="MinWidth" Value="252" />
-        <Setter Property="Height" Value="164" />
-        <Setter Property="Margin" Value="0,0,18,18" />
+        <Setter Property="Width" Value="260" />
+        <Setter Property="MinWidth" Value="230" />
+        <Setter Property="Height" Value="146" />
+        <Setter Property="Margin" Value="0,0,14,14" />
     </Style>
 
     <Style x:Key="InvoiceSummaryMetricCardStyle" TargetType="{x:Type Border}" BasedOn="{StaticResource InvoiceMetricCardStyle}">
-        <Setter Property="Width" Value="282" />
-        <Setter Property="MinWidth" Value="252" />
-        <Setter Property="Height" Value="164" />
-        <Setter Property="Margin" Value="0,0,18,18" />
+        <Setter Property="Width" Value="260" />
+        <Setter Property="MinWidth" Value="230" />
+        <Setter Property="Height" Value="146" />
+        <Setter Property="Margin" Value="0,0,14,14" />
     </Style>
 
     <Style x:Key="ResponsiveMainGlassCardStyle" TargetType="{x:Type Border}" BasedOn="{StaticResource GlassCardStyle}">
-        <Setter Property="Width" Value="720" />
-        <Setter Property="MinWidth" Value="340" />
-        <Setter Property="Margin" Value="0,0,18,18" />
+        <Setter Property="Width" Value="660" />
+        <Setter Property="MinWidth" Value="320" />
+        <Setter Property="Margin" Value="0,0,14,14" />
     </Style>
 
     <Style x:Key="ResponsiveSideGlassCardStyle" TargetType="{x:Type Border}" BasedOn="{StaticResource GlassCardStyle}">
-        <Setter Property="Width" Value="470" />
-        <Setter Property="MinWidth" Value="320" />
-        <Setter Property="Margin" Value="0,0,18,18" />
+        <Setter Property="Width" Value="430" />
+        <Setter Property="MinWidth" Value="300" />
+        <Setter Property="Margin" Value="0,0,14,14" />
     </Style>
 
     <Style x:Key="ResponsiveMainColumnStyle" TargetType="{x:Type StackPanel}">
-        <Setter Property="Width" Value="720" />
-        <Setter Property="MinWidth" Value="340" />
-        <Setter Property="Margin" Value="0,0,18,18" />
+        <Setter Property="Width" Value="660" />
+        <Setter Property="MinWidth" Value="320" />
+        <Setter Property="Margin" Value="0,0,14,14" />
     </Style>
 
     <Style x:Key="ResponsiveSideColumnStyle" TargetType="{x:Type StackPanel}">
-        <Setter Property="Width" Value="470" />
-        <Setter Property="MinWidth" Value="320" />
-        <Setter Property="Margin" Value="0,0,18,18" />
+        <Setter Property="Width" Value="430" />
+        <Setter Property="MinWidth" Value="300" />
+        <Setter Property="Margin" Value="0,0,14,14" />
     </Style>
 
     <Style x:Key="InnerCardStyle" TargetType="{x:Type Border}">
