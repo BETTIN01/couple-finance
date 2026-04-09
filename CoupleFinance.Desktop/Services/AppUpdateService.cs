@@ -362,7 +362,28 @@ public sealed partial class AppUpdateService : ObservableObject, IDisposable
         var scriptPath = EnsureBackgroundUpdateScript();
         var process = StartBackgroundUpdater(
             scriptPath,
-            $"-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \"{scriptPath}\" -ParentProcessId {Environment.ProcessId} -Mode installer -SourcePath \"{installerPath}\" -ExecutablePath \"{executablePath}\" -TargetDirectory \"{targetDirectory}\" -InstallerDirectory \"{targetDirectory}\" -RelaunchAfterInstall:${_optionsMonitor.CurrentValue.RelaunchAfterInstall.ToString().ToLowerInvariant()}");
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-WindowStyle",
+            "Hidden",
+            "-File",
+            scriptPath,
+            "-ParentProcessId",
+            Environment.ProcessId.ToString(),
+            "-Mode",
+            "installer",
+            "-SourcePath",
+            installerPath,
+            "-ExecutablePath",
+            executablePath,
+            "-TargetDirectory",
+            targetDirectory,
+            "-InstallerDirectory",
+            targetDirectory,
+            "-ExpectedVersion",
+            LatestVersion,
+            $"-RelaunchAfterInstall:${_optionsMonitor.CurrentValue.RelaunchAfterInstall.ToString().ToLowerInvariant()}");
 
         if (process is null)
         {
@@ -377,7 +398,26 @@ public sealed partial class AppUpdateService : ObservableObject, IDisposable
         var scriptPath = EnsureBackgroundUpdateScript();
         var process = StartBackgroundUpdater(
             scriptPath,
-            $"-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \"{scriptPath}\" -ParentProcessId {Environment.ProcessId} -Mode package -SourcePath \"{packagePath}\" -ExecutablePath \"{executablePath}\" -TargetDirectory \"{targetDirectory}\" -RelaunchAfterInstall:${_optionsMonitor.CurrentValue.RelaunchAfterInstall.ToString().ToLowerInvariant()}");
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-WindowStyle",
+            "Hidden",
+            "-File",
+            scriptPath,
+            "-ParentProcessId",
+            Environment.ProcessId.ToString(),
+            "-Mode",
+            "package",
+            "-SourcePath",
+            packagePath,
+            "-ExecutablePath",
+            executablePath,
+            "-TargetDirectory",
+            targetDirectory,
+            "-ExpectedVersion",
+            LatestVersion,
+            $"-RelaunchAfterInstall:${_optionsMonitor.CurrentValue.RelaunchAfterInstall.ToString().ToLowerInvariant()}");
 
         if (process is null)
         {
@@ -394,7 +434,7 @@ public sealed partial class AppUpdateService : ObservableObject, IDisposable
         return scriptPath;
     }
 
-    private static string BuildBackgroundUpdateScript() => """
+    private static string BuildBackgroundUpdateScript() => """"
 param(
     [int]$ParentProcessId,
     [ValidateSet('installer', 'package')]
@@ -403,6 +443,7 @@ param(
     [string]$ExecutablePath,
     [string]$TargetDirectory,
     [string]$InstallerDirectory = "",
+    [string]$ExpectedVersion = "",
     [bool]$RelaunchAfterInstall = $true
 )
 
@@ -430,9 +471,48 @@ function Wait-ForPath {
     return $false
 }
 
+function Get-ExecutableVersion {
+    param([string]$Path)
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        return ""
+    }
+
+    try {
+        return [System.Diagnostics.FileVersionInfo]::GetVersionInfo($Path).FileVersion
+    }
+    catch {
+        return ""
+    }
+}
+
+function Wait-ForExpectedVersion {
+    param(
+        [string]$Path,
+        [string]$Version,
+        [int]$TimeoutSeconds = 120
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Version)) {
+        return Wait-ForPath -Path $Path -TimeoutSeconds $TimeoutSeconds
+    }
+
+    for ($second = 0; $second -lt $TimeoutSeconds; $second++) {
+        $currentVersion = Get-ExecutableVersion -Path $Path
+        if ($currentVersion -like ($Version + '*')) {
+            return $true
+        }
+
+        Start-Sleep -Seconds 1
+    }
+
+    return $false
+}
+
 try {
     Wait-Process -Id $ParentProcessId -ErrorAction SilentlyContinue
     Start-Sleep -Seconds 2
+    Write-Log ("Modo=" + $Mode + "; Origem=" + $SourcePath + "; Destino=" + $TargetDirectory + "; Executavel=" + $ExecutablePath + "; VersaoEsperada=" + $ExpectedVersion)
 
     if ($Mode -eq "package") {
         New-Item -ItemType Directory -Path $TargetDirectory -Force | Out-Null
@@ -448,21 +528,33 @@ try {
         Copy-Item -Path (Join-Path $sourceRoot "*") -Destination $TargetDirectory -Recurse -Force
         Remove-Item -LiteralPath $extractDirectory -Recurse -Force -ErrorAction SilentlyContinue
         Remove-Item -LiteralPath $SourcePath -Force -ErrorAction SilentlyContinue
+        if (-not (Wait-ForExpectedVersion -Path $ExecutablePath -Version $ExpectedVersion)) {
+            $versionEncontrada = Get-ExecutableVersion -Path $ExecutablePath
+            throw ("A atualizacao por pacote nao atualizou o executavel esperado para a versao " + $ExpectedVersion + ". Versao encontrada: " + $versionEncontrada)
+        }
         Write-Log "Atualizacao por pacote concluida."
     }
     else {
         $installerArguments = @('/SP-', '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART')
         if ($InstallerDirectory) {
-            $installerArguments += "/DIR=$InstallerDirectory"
+            $installerArguments += ("/DIR=""{0}""" -f $InstallerDirectory)
         }
 
+        Write-Log ("Executando instalador com argumentos: " + ($installerArguments -join ' '))
         $installerProcess = Start-Process -FilePath $SourcePath -ArgumentList $installerArguments -PassThru -Wait -WindowStyle Hidden
         Write-Log ("Instalador finalizado com codigo " + $installerProcess.ExitCode)
+        if ($installerProcess.ExitCode -ne 0) {
+            throw ("O instalador encerrou com codigo " + $installerProcess.ExitCode)
+        }
+
         Remove-Item -LiteralPath $SourcePath -Force -ErrorAction SilentlyContinue
-        [void](Wait-ForPath -Path $ExecutablePath)
+        if (-not (Wait-ForExpectedVersion -Path $ExecutablePath -Version $ExpectedVersion)) {
+            $versionEncontrada = Get-ExecutableVersion -Path $ExecutablePath
+            throw ("A instalacao terminou, mas o executavel esperado nao foi atualizado para a versao " + $ExpectedVersion + ". Versao encontrada: " + $versionEncontrada)
+        }
     }
 
-    if ($RelaunchAfterInstall -and (Test-Path $ExecutablePath)) {
+    if ($RelaunchAfterInstall -and (Test-Path -LiteralPath $ExecutablePath)) {
         Start-Process -FilePath $ExecutablePath | Out-Null
         Write-Log "Aplicacao reaberta apos atualizar."
     }
@@ -470,18 +562,26 @@ try {
 catch {
     Write-Log $_.Exception.ToString()
 }
-""";
+"""";
 
-    private static Process? StartBackgroundUpdater(string scriptPath, string arguments) =>
-        Process.Start(new ProcessStartInfo
+    private static Process? StartBackgroundUpdater(string scriptPath, params string[] arguments)
+    {
+        var startInfo = new ProcessStartInfo
         {
             FileName = "powershell.exe",
-            Arguments = arguments,
             UseShellExecute = false,
             CreateNoWindow = true,
             WindowStyle = ProcessWindowStyle.Hidden,
             WorkingDirectory = Path.GetDirectoryName(scriptPath) ?? AppContext.BaseDirectory
-        });
+        };
+
+        foreach (var argument in arguments)
+        {
+            startInfo.ArgumentList.Add(argument);
+        }
+
+        return Process.Start(startInfo);
+    }
 
     private static bool TryGetWebUri(string source, out Uri uri)
     {
