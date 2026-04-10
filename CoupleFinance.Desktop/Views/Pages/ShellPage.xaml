@@ -56,20 +56,30 @@
 
                                 <StackPanel x:Name="SidebarNavigationPanel"
                                             Margin="0,0,0,10">
-                                    <Button Style="{StaticResource SidebarButtonStyle}"
+                                    <Button x:Name="NavDashboardButton"
+                                            Style="{StaticResource SidebarButtonStyle}"
+                                            RenderTransformOrigin="0.5,0.5"
                                             Command="{Binding NavigateCommand}"
                                             CommandParameter="Dashboard">
+                                        <Button.RenderTransform>
+                                            <ScaleTransform />
+                                        </Button.RenderTransform>
                                         <StackPanel Orientation="Horizontal">
                                             <materialDesign:PackIcon Kind="ViewDashboard"
                                                                      Margin="0,0,12,0"
-                                                                     Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                             Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                                             <TextBlock Text="Dashboard"
                                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                                         </StackPanel>
                                     </Button>
-                                    <Button Style="{StaticResource SidebarButtonStyle}"
+                                    <Button x:Name="NavTransactionsButton"
+                                            Style="{StaticResource SidebarButtonStyle}"
+                                            RenderTransformOrigin="0.5,0.5"
                                             Command="{Binding NavigateCommand}"
                                             CommandParameter="Transactions">
+                                        <Button.RenderTransform>
+                                            <ScaleTransform />
+                                        </Button.RenderTransform>
                                         <StackPanel Orientation="Horizontal">
                                             <materialDesign:PackIcon Kind="SwapHorizontalBold"
                                                                      Margin="0,0,12,0"
@@ -78,9 +88,14 @@
                                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                                         </StackPanel>
                                     </Button>
-                                    <Button Style="{StaticResource SidebarButtonStyle}"
+                                    <Button x:Name="NavAccountsButton"
+                                            Style="{StaticResource SidebarButtonStyle}"
+                                            RenderTransformOrigin="0.5,0.5"
                                             Command="{Binding NavigateCommand}"
                                             CommandParameter="Accounts">
+                                        <Button.RenderTransform>
+                                            <ScaleTransform />
+                                        </Button.RenderTransform>
                                         <StackPanel Orientation="Horizontal">
                                             <materialDesign:PackIcon Kind="BankOutline"
                                                                      Margin="0,0,12,0"
@@ -89,9 +104,14 @@
                                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                                         </StackPanel>
                                     </Button>
-                                    <Button Style="{StaticResource SidebarButtonStyle}"
+                                    <Button x:Name="NavCardsButton"
+                                            Style="{StaticResource SidebarButtonStyle}"
+                                            RenderTransformOrigin="0.5,0.5"
                                             Command="{Binding NavigateCommand}"
                                             CommandParameter="Cards">
+                                        <Button.RenderTransform>
+                                            <ScaleTransform />
+                                        </Button.RenderTransform>
                                         <StackPanel Orientation="Horizontal">
                                             <materialDesign:PackIcon Kind="CreditCardOutline"
                                                                      Margin="0,0,12,0"
@@ -100,9 +120,14 @@
                                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                                         </StackPanel>
                                     </Button>
-                                    <Button Style="{StaticResource SidebarButtonStyle}"
+                                    <Button x:Name="NavPlanningButton"
+                                            Style="{StaticResource SidebarButtonStyle}"
+                                            RenderTransformOrigin="0.5,0.5"
                                             Command="{Binding NavigateCommand}"
                                             CommandParameter="Planning">
+                                        <Button.RenderTransform>
+                                            <ScaleTransform />
+                                        </Button.RenderTransform>
                                         <StackPanel Orientation="Horizontal">
                                             <materialDesign:PackIcon Kind="BullseyeArrow"
                                                                      Margin="0,0,12,0"
@@ -111,9 +136,14 @@
                                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                                         </StackPanel>
                                     </Button>
-                                    <Button Style="{StaticResource SidebarButtonStyle}"
+                                    <Button x:Name="NavInvestmentsButton"
+                                            Style="{StaticResource SidebarButtonStyle}"
+                                            RenderTransformOrigin="0.5,0.5"
                                             Command="{Binding NavigateCommand}"
                                             CommandParameter="Investments">
+                                        <Button.RenderTransform>
+                                            <ScaleTransform />
+                                        </Button.RenderTransform>
                                         <StackPanel Orientation="Horizontal">
                                             <materialDesign:PackIcon Kind="ChartTimelineVariant"
                                                                      Margin="0,0,12,0"
@@ -122,9 +152,14 @@
                                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                                         </StackPanel>
                                     </Button>
-                                    <Button Style="{StaticResource SidebarButtonStyle}"
+                                    <Button x:Name="NavInsightsButton"
+                                            Style="{StaticResource SidebarButtonStyle}"
+                                            RenderTransformOrigin="0.5,0.5"
                                             Command="{Binding NavigateCommand}"
                                             CommandParameter="Insights">
+                                        <Button.RenderTransform>
+                                            <ScaleTransform />
+                                        </Button.RenderTransform>
                                         <StackPanel Orientation="Horizontal">
                                             <materialDesign:PackIcon Kind="LightbulbAutoOutline"
                                                                      Margin="0,0,12,0"
@@ -133,9 +168,14 @@
                                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                                         </StackPanel>
                                     </Button>
-                                    <Button Style="{StaticResource SidebarButtonStyle}"
+                                    <Button x:Name="NavSettingsButton"
+                                            Style="{StaticResource SidebarButtonStyle}"
+                                            RenderTransformOrigin="0.5,0.5"
                                             Command="{Binding NavigateCommand}"
                                             CommandParameter="Settings">
+                                        <Button.RenderTransform>
+                                            <ScaleTransform />
+                                        </Button.RenderTransform>
                                         <StackPanel Orientation="Horizontal">
                                             <materialDesign:PackIcon Kind="CogOutline"
                                                                      Margin="0,0,12,0"
@@ -237,7 +277,11 @@
                                           presentation:SmoothScrollBehavior.WheelChange="112"
                                           presentation:SmoothScrollBehavior.Duration="0:0:0.24">
                                 <Grid x:Name="SectionContentHost"
-                                      HorizontalAlignment="Stretch">
+                                      HorizontalAlignment="Stretch"
+                                      Opacity="1">
+                                    <Grid.RenderTransform>
+                                        <TranslateTransform x:Name="SectionContentTranslateTransform" />
+                                    </Grid.RenderTransform>
                                     <local:DashboardPage Visibility="{Binding CurrentSection, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Dashboard}" />
                                     <local:TransactionsPage Visibility="{Binding CurrentSection, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Transactions}" />
                                     <local:AccountsPage Visibility="{Binding CurrentSection, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Accounts}" />

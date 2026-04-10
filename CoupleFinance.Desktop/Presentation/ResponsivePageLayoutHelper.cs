@@ -6,7 +6,7 @@ namespace CoupleFinance.Desktop.Presentation;
 
 public static class ResponsivePageLayoutHelper
 {
-    private const double Gap = 14;
+    private const double Gap = 10;
     private const double PagePadding = 4;
 
     public static double GetPageWidth(FrameworkElement element)
@@ -37,13 +37,16 @@ public static class ResponsivePageLayoutHelper
             return;
         }
 
-        var columns = availableWidth >= 1320 ? 4 : availableWidth >= 980 ? 3 : availableWidth >= 700 ? 2 : 1;
-        var cardWidth = (availableWidth - (Gap * columns)) / columns;
-        cardWidth = Math.Max(220, cardWidth);
+        var preferredColumns = availableWidth >= 940 ? 4 : availableWidth >= 700 ? 3 : availableWidth >= 500 ? 2 : 1;
+        var columns = Math.Min(cards.Length, preferredColumns);
+        var cardWidth = (availableWidth - (Gap * (columns - 1))) / columns;
+        cardWidth = Math.Max(172, cardWidth);
+        var cardHeight = availableWidth <= 640 ? 112 : availableWidth <= 980 ? 118 : 124;
 
         for (var index = 0; index < cards.Length; index++)
         {
             cards[index].Width = cardWidth;
+            cards[index].Height = cardHeight;
         }
     }
 
@@ -54,11 +57,11 @@ public static class ResponsivePageLayoutHelper
             return;
         }
 
-        if (availableWidth >= 1100)
+        if (availableWidth >= 1020)
         {
-            var usableWidth = Math.Max(640, availableWidth - (Gap * 2));
-            var secondaryWidth = Math.Max(310, usableWidth * (1 - primaryRatio));
-            var primaryWidth = Math.Max(430, usableWidth - secondaryWidth);
+            var usableWidth = Math.Max(620, availableWidth - Gap);
+            var secondaryWidth = Math.Max(290, usableWidth * (1 - primaryRatio));
+            var primaryWidth = Math.Max(390, usableWidth - secondaryWidth - Gap);
             primary.Width = primaryWidth;
             secondary.Width = secondaryWidth;
             return;

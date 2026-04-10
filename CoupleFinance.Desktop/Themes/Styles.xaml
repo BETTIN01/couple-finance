@@ -58,7 +58,7 @@
 
     <Style x:Key="MetricValueStyle" TargetType="{x:Type TextBlock}">
         <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
-        <Setter Property="FontSize" Value="30" />
+        <Setter Property="FontSize" Value="28" />
         <Setter Property="FontWeight" Value="ExtraBold" />
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
     </Style>
@@ -80,8 +80,8 @@
         <Setter Property="Background" Value="{StaticResource CardBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="CornerRadius" Value="22" />
-        <Setter Property="Padding" Value="18" />
+        <Setter Property="CornerRadius" Value="20" />
+        <Setter Property="Padding" Value="16" />
         <Setter Property="Effect">
             <Setter.Value>
                 <DropShadowEffect BlurRadius="28" ShadowDepth="0" Opacity="0.36" Color="#AA080B10" />
@@ -130,31 +130,31 @@
     </Style>
 
     <Style x:Key="IncomeSummaryMetricCardStyle" TargetType="{x:Type Border}" BasedOn="{StaticResource IncomeMetricCardStyle}">
-        <Setter Property="Width" Value="260" />
-        <Setter Property="MinWidth" Value="230" />
-        <Setter Property="Height" Value="146" />
-        <Setter Property="Margin" Value="0,0,14,14" />
+        <Setter Property="Width" Value="236" />
+        <Setter Property="MinWidth" Value="190" />
+        <Setter Property="Height" Value="126" />
+        <Setter Property="Margin" Value="0,0,10,10" />
     </Style>
 
     <Style x:Key="ExpenseSummaryMetricCardStyle" TargetType="{x:Type Border}" BasedOn="{StaticResource ExpenseMetricCardStyle}">
-        <Setter Property="Width" Value="260" />
-        <Setter Property="MinWidth" Value="230" />
-        <Setter Property="Height" Value="146" />
-        <Setter Property="Margin" Value="0,0,14,14" />
+        <Setter Property="Width" Value="236" />
+        <Setter Property="MinWidth" Value="190" />
+        <Setter Property="Height" Value="126" />
+        <Setter Property="Margin" Value="0,0,10,10" />
     </Style>
 
     <Style x:Key="BalanceSummaryMetricCardStyle" TargetType="{x:Type Border}" BasedOn="{StaticResource BalanceMetricCardStyle}">
-        <Setter Property="Width" Value="260" />
-        <Setter Property="MinWidth" Value="230" />
-        <Setter Property="Height" Value="146" />
-        <Setter Property="Margin" Value="0,0,14,14" />
+        <Setter Property="Width" Value="236" />
+        <Setter Property="MinWidth" Value="190" />
+        <Setter Property="Height" Value="126" />
+        <Setter Property="Margin" Value="0,0,10,10" />
     </Style>
 
     <Style x:Key="InvoiceSummaryMetricCardStyle" TargetType="{x:Type Border}" BasedOn="{StaticResource InvoiceMetricCardStyle}">
-        <Setter Property="Width" Value="260" />
-        <Setter Property="MinWidth" Value="230" />
-        <Setter Property="Height" Value="146" />
-        <Setter Property="Margin" Value="0,0,14,14" />
+        <Setter Property="Width" Value="236" />
+        <Setter Property="MinWidth" Value="190" />
+        <Setter Property="Height" Value="126" />
+        <Setter Property="Margin" Value="0,0,10,10" />
     </Style>
 
     <Style x:Key="ResponsiveMainGlassCardStyle" TargetType="{x:Type Border}" BasedOn="{StaticResource GlassCardStyle}">
@@ -404,6 +404,21 @@
                 <Setter Property="Opacity" Value="0.55" />
             </Trigger>
         </Style.Triggers>
+    </Style>
+
+    <Style x:Key="SidebarButtonActiveStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource SidebarButtonStyle}">
+        <Setter Property="Background" Value="{StaticResource SidebarSelectedBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderAccentBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+        <Setter Property="TextElement.Foreground" Value="{StaticResource TextPrimaryBrush}" />
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="16"
+                                  ShadowDepth="0"
+                                  Opacity="0.26"
+                                  Color="#7AF4D38A" />
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <Style x:Key="AccentContainedButtonStyle" TargetType="{x:Type Button}">

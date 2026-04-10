@@ -27,15 +27,15 @@ public partial class DashboardPage : UserControl
             return;
         }
 
-        var notebookWidth = availableWidth <= 1260;
+        var notebookWidth = availableWidth <= 1200;
         var compactHeight = ActualHeight > 0 && ActualHeight <= 780;
-        var cardGap = notebookWidth ? 8 : DefaultCardGap;
+        var cardGap = notebookWidth ? 8 : 10;
 
-        var metricColumns = availableWidth >= 1180 ? 4 : availableWidth >= 900 ? 3 : availableWidth >= 620 ? 2 : 1;
+        var metricColumns = availableWidth >= 960 ? 4 : availableWidth >= 700 ? 3 : availableWidth >= 500 ? 2 : 1;
         var metricWidth = (availableWidth - (cardGap * (metricColumns - 1))) / metricColumns;
-        metricWidth = Math.Max(186, metricWidth);
+        metricWidth = Math.Max(176, metricWidth);
 
-        var metricHeight = compactHeight ? 112 : notebookWidth ? 120 : 130;
+        var metricHeight = compactHeight ? 106 : notebookWidth ? 114 : 122;
 
         IncomeMetricCard.Width = metricWidth;
         ExpenseMetricCard.Width = metricWidth;
@@ -52,24 +52,24 @@ public partial class DashboardPage : UserControl
         BalanceMetricCard.Margin = new Thickness(0, 0, cardGap, cardGap);
         InvoiceMetricCard.Margin = new Thickness(0, 0, 0, cardGap);
 
-        var sectionGap = notebookWidth ? 8 : DefaultCardGap;
-        var wideLayout = availableWidth >= 1120;
+        var sectionGap = notebookWidth ? 8 : 10;
+        var wideLayout = availableWidth >= 1020;
         if (wideLayout)
         {
-            var primaryUsableWidth = Math.Max(620, availableWidth - sectionGap);
-            var primarySideWidth = Math.Max(300, primaryUsableWidth * 0.36);
+            var primaryUsableWidth = Math.Max(600, availableWidth - sectionGap);
+            var primarySideWidth = Math.Max(280, primaryUsableWidth * 0.36);
             var primaryMainWidth = Math.Max(420, primaryUsableWidth - primarySideWidth - sectionGap);
             CoupleSummaryCard.Width = primaryMainWidth;
             RecentActivityCard.Width = primarySideWidth;
 
-            var chartsUsableWidth = Math.Max(620, availableWidth - sectionGap);
-            var chartsSideWidth = Math.Max(290, chartsUsableWidth * 0.38);
+            var chartsUsableWidth = Math.Max(600, availableWidth - sectionGap);
+            var chartsSideWidth = Math.Max(270, chartsUsableWidth * 0.38);
             var chartsMainWidth = Math.Max(410, chartsUsableWidth - chartsSideWidth - sectionGap);
             TrendChartCard.Width = chartsMainWidth;
             CategoryChartCard.Width = chartsSideWidth;
 
-            var footerUsableWidth = Math.Max(620, availableWidth - sectionGap);
-            var footerSideWidth = Math.Max(300, footerUsableWidth * 0.38);
+            var footerUsableWidth = Math.Max(600, availableWidth - sectionGap);
+            var footerSideWidth = Math.Max(280, footerUsableWidth * 0.38);
             var footerMainWidth = Math.Max(400, footerUsableWidth - footerSideWidth - sectionGap);
             ComparisonCard.Width = footerMainWidth;
             PlanningColumnPanel.Width = footerSideWidth;

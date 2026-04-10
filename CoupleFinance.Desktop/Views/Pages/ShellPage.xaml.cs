@@ -1,8 +1,10 @@
 using System.ComponentModel;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using CoupleFinance.Desktop.ViewModels;
 
@@ -14,11 +16,20 @@ public partial class ShellPage : UserControl
     private bool _isDraggingUpdatePrompt;
     private Point _updatePromptDragStart;
     private Point _updatePromptDialogOrigin;
+    private readonly Dictionary<string, Button> _navigationButtons = new(StringComparer.OrdinalIgnoreCase);
+    private Style? _sidebarDefaultStyle;
+    private Style? _sidebarActiveStyle;
 
     public ShellPage()
     {
         InitializeComponent();
-        Loaded += (_, _) => ApplyResponsiveLayout();
+        Loaded += (_, _) =>
+        {
+            InitializeSidebarState();
+            ApplyResponsiveLayout();
+            UpdateSidebarSelection(false);
+            AnimateSectionTransition();
+        };
         SizeChanged += (_, _) => ApplyResponsiveLayout();
         SectionScrollViewer.SizeChanged += (_, _) => ApplyResponsiveLayout();
         DataContextChanged += HandleDataContextChanged;
@@ -115,6 +126,8 @@ public partial class ShellPage : UserControl
         {
             _viewModel.PropertyChanged += HandleViewModelPropertyChanged;
         }
+
+        UpdateSidebarSelection(false);
     }
 
     private void HandleViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -128,6 +141,8 @@ public partial class ShellPage : UserControl
                 ApplyResponsiveLayout();
                 SectionScrollViewer.ScrollToVerticalOffset(0);
                 SectionScrollViewer.UpdateLayout();
+                UpdateSidebarSelection(true);
+                AnimateSectionTransition();
             }));
 
             return;
@@ -215,5 +230,94 @@ public partial class ShellPage : UserControl
 
         UpdatePromptDialogTransform.X = Math.Clamp(UpdatePromptDialogTransform.X, -horizontalLimit, horizontalLimit);
         UpdatePromptDialogTransform.Y = Math.Clamp(UpdatePromptDialogTransform.Y, -verticalLimit, verticalLimit);
+    }
+
+    private void InitializeSidebarState()
+    {
+        if (_navigationButtons.Count > 0)
+        {
+            return;
+        }
+
+        _navigationButtons["Dashboard"] = NavDashboardButton;
+        _navigationButtons["Transactions"] = NavTransactionsButton;
+        _navigationButtons["Accounts"] = NavAccountsButton;
+        _navigationButtons["Cards"] = NavCardsButton;
+        _navigationButtons["Planning"] = NavPlanningButton;
+        _navigationButtons["Investments"] = NavInvestmentsButton;
+        _navigationButtons["Insights"] = NavInsightsButton;
+        _navigationButtons["Settings"] = NavSettingsButton;
+
+        _sidebarDefaultStyle = (Style)FindResource("SidebarButtonStyle");
+        _sidebarActiveStyle = (Style)FindResource("SidebarButtonActiveStyle");
+    }
+
+    private void UpdateSidebarSelection(bool animateActive)
+    {
+        if (_viewModel is null || _navigationButtons.Count == 0 || _sidebarDefaultStyle is null || _sidebarActiveStyle is null)
+        {
+            return;
+        }
+
+        var activeSection = _viewModel.CurrentSection.ToString();
+
+        foreach (var (section, button) in _navigationButtons)
+        {
+            var isActive = string.Equals(section, activeSection, StringComparison.OrdinalIgnoreCase);
+            button.Style = isActive ? _sidebarActiveStyle : _sidebarDefaultStyle;
+
+            if (button.RenderTransform is not ScaleTransform scaleTransform)
+            {
+                continue;
+            }
+
+            if (isActive && animateActive)
+            {
+                var pulse = new DoubleAnimation
+                {
+                    From = 0.965,
+                    To = 1.0,
+                    Duration = TimeSpan.FromMilliseconds(180),
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                };
+
+                button.BeginAnimation(OpacityProperty, new DoubleAnimation(0.78, 1.0, TimeSpan.FromMilliseconds(170)));
+                scaleTransform.BeginAnimation(ScaleTransform.ScaleXProperty, pulse);
+                scaleTransform.BeginAnimation(ScaleTransform.ScaleYProperty, pulse);
+            }
+            else
+            {
+                scaleTransform.ScaleX = 1.0;
+                scaleTransform.ScaleY = 1.0;
+                button.Opacity = 1.0;
+            }
+        }
+    }
+
+    private void AnimateSectionTransition()
+    {
+        if (!IsLoaded)
+        {
+            return;
+        }
+
+        var fade = new DoubleAnimation
+        {
+            From = 0.0,
+            To = 1.0,
+            Duration = TimeSpan.FromMilliseconds(200),
+            EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+        };
+
+        var slide = new DoubleAnimation
+        {
+            From = 10,
+            To = 0,
+            Duration = TimeSpan.FromMilliseconds(210),
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+        };
+
+        SectionContentHost.BeginAnimation(OpacityProperty, fade);
+        SectionContentTranslateTransform.BeginAnimation(TranslateTransform.YProperty, slide);
     }
 }
